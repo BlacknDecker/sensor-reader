@@ -1,8 +1,6 @@
 language: java
 install: true
 
-jdk: openjdk8
-
 cache:
   directories:
     - $HOME/.m2
@@ -11,7 +9,11 @@ cache:
 addons:
   sonarcloud:
     organization: "lores"
+
+matrix:
+  include:
+    - jdk: openjdk8
+      script: ./mvnw clean verify -Pjacoco
+    - jdk: openjdk11
+      script: ./mvnw coveralls:report sonar:sonar 
     
-script:
-  - ./mvnw clean verify -Pjacoco
-  - ./mvnw coveralls:report sonar:sonar
