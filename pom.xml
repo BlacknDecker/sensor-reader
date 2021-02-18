@@ -19,6 +19,8 @@
 		<skip.unit-tests>false</skip.unit-tests>
 		<skip.integration-tests>false</skip.integration-tests>
 		<testcontainers.version>1.15.1</testcontainers.version>
+		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
+		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -109,7 +111,6 @@
 			<artifactId>bootstrap</artifactId>
 			<version>3.4.1</version>
 		</dependency>
-
 	</dependencies>
 
 
@@ -170,8 +171,60 @@
 					</execution>
 				</executions>
 			</plugin>
-
 		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<!-- coveralls:report must be run explicitly -->
+				<plugin>
+					<groupId>org.eluder.coveralls</groupId>
+					<artifactId>coveralls-maven-plugin</artifactId>
+					<version>${coveralls.plugin.version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>jacoco</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.plugin.version}</version>
+						<configuration>
+							<excludes>
+								<exclude>**/*Application.*</exclude>
+								<exclude>**/model/*</exclude>
+							</excludes>
+						</configuration>
+						<executions>
+							<execution>
+								<configuration>
+									<propertyName>surefireArgLine</propertyName>
+								</configuration>
+								<goals>
+									<goal>prepare-agent</goal>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<argLine>${surefireArgLine}</argLine>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
