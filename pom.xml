@@ -21,6 +21,14 @@
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
 		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
+		<sonar.plugin.version>3.7.0.1746</sonar.plugin.version>
+		<sonar.organization>lores</sonar.organization>
+		<sonar.projectKey>BlacknDecker_sensor-reader</sonar.projectKey>
+		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.coverage.exclusions>
+			**/model/*,
+			**/*Application.*
+		</sonar.coverage.exclusions>
 	</properties>
 
 	<dependencyManagement>
@@ -180,6 +188,11 @@
 					<groupId>org.eluder.coveralls</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
 					<version>${coveralls.plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>${sonar.plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
