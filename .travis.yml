@@ -13,11 +13,9 @@ addons:
 matrix:
   include:
     - jdk: openjdk8
-      script: ./mvnw coveralls:report
+      script: ./mvnw clean verify -Pjacoco && ./mvnw coveralls:report
     - jdk: openjdk11
-      script: ./mvnw coveralls:report
+      script: ./mvnw clean verify -Pjacoco && ./mvnw coveralls:report
     - jdk: openjdk11
-      script: ./mvnw sonar:sonar 
-    - jdk: openjdk11
-      script: ./mvnw coveralls:report sonar:sonar 
+      script: ./mvnw clean verify -Pjacoco && ./mvnw coveralls:report sonar:sonar 
     

@@ -25,6 +25,13 @@
 		<sonar.organization>lores</sonar.organization>
 		<sonar.projectKey>BlacknDecker_sensor-reader</sonar.projectKey>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.coverage.jacoco.xmlReportPaths>
+			${project.reporting.outputDirectory}/jacoco/jacoco.xml
+		</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.tests>
+			${project.build.testSourceDirectory},
+			${basedir}/src/it/java
+		</sonar.tests>
 		<sonar.coverage.exclusions>
 			**/model/*,
 			**/*Application.*
