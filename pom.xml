@@ -21,13 +21,23 @@
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
 		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
+
 		<sonar.plugin.version>3.7.0.1746</sonar.plugin.version>
 		<sonar.organization>lores</sonar.organization>
 		<sonar.projectKey>BlacknDecker_sensor-reader</sonar.projectKey>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
 		<sonar.coverage.jacoco.xmlReportPaths>
 			${project.reporting.outputDirectory}/jacoco/jacoco.xml
 		</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.junit.reportPaths>
+			${project.build.directory}/surefire-reports
+		</sonar.junit.reportPaths>
+		<sonar.sources>
+			pom.xml,
+			${project.build.sourceDirectory},
+			${basedir}/src/main/resources
+		</sonar.sources>
 		<sonar.tests>
 			${project.build.testSourceDirectory}
 		</sonar.tests>
