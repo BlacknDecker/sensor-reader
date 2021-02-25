@@ -4,8 +4,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "topic")
 public class Topic {
 
+	@Id
 	private String id;
 	private String path;
 	private List<TelemetryValue> telemetry;
@@ -37,15 +42,15 @@ public class Topic {
 
 	@Override
 	public String toString() {
-		return "[" + path + "]\n" + 
+		return "[" + path + "]\n" +
 				telemetry.stream().map(Object::toString).collect(Collectors.joining("\n"));
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, path, telemetry);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
