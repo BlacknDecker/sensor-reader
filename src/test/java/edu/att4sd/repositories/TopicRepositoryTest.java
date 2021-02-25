@@ -16,6 +16,9 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
@@ -23,12 +26,16 @@ import com.mongodb.client.MongoDatabase;
 import edu.att4sd.model.Topic;
 
 @ExtendWith(SpringExtension.class)
+@Testcontainers
 @DataMongoTest
 class TopicRepositoryTest {
 
+	@Container
+	static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.2").withExposedPorts(27017);
+
 	@DynamicPropertySource
 	static void setProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.data.mongodb.uri", () -> "mongodb://localhost:27017");
+		registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
 	}
 
 	@Autowired
@@ -43,13 +50,13 @@ class TopicRepositoryTest {
 	private Logger logger = LoggerFactory.getLogger(TopicRepositoryTest.class);
 
 	@BeforeEach
-	void setUp() {
+	public void setUp() {
 		MongoDatabase database = client.getDatabase(dbName);
 		database.drop(); // Always start with a clean DB
 	}
 
 	@Test
-	void testDBIsConnectedAndWorking() {
+	public void testDBIsConnectedAndWorking() {
 		Topic topic = new Topic("test", new ArrayList<>());
 		Topic saved = repository.save(topic);
 		Collection<Topic> topics = repository.findAll();
