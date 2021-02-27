@@ -7,36 +7,22 @@ import java.util.Collection;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.context.annotation.Import;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
 import edu.att4sd.model.Topic;
 
-@ExtendWith(SpringExtension.class)
-@Testcontainers
+
+@Import(MongoTestServerConfiguration.class)
 @DataMongoTest
 class TopicRepositoryTest {
-
-	@Container
-	static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:4.4.2").withExposedPorts(27017);
-
-	@DynamicPropertySource
-	static void setProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-	}
 
 	@Autowired
 	private MongoClient client;
@@ -46,7 +32,7 @@ class TopicRepositoryTest {
 
 	@Value("${spring.data.mongodb.database}")
 	private String dbName;
-
+	
 	private Logger logger = LoggerFactory.getLogger(TopicRepositoryTest.class);
 
 	@BeforeEach
