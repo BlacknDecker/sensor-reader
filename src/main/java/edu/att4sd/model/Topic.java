@@ -42,8 +42,8 @@ public class Topic {
 
 	@Override
 	public String toString() {
-		return "[" + path + "]\n" +
-				telemetry.stream().map(Object::toString).collect(Collectors.joining("\n"));
+		return "[" + path + "]:{" +
+				telemetry.stream().map(Object::toString).collect(Collectors.joining(", ")) + "}";
 	}
 
 	@Override
