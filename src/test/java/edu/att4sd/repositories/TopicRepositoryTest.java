@@ -1,11 +1,13 @@
 package edu.att4sd.repositories;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,50 +48,67 @@ class TopicRepositoryTest {
 	private Logger logger = LoggerFactory.getLogger(TopicRepositoryTest.class);
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
+		// Always start with a clean DB
 		MongoDatabase database = client.getDatabase(dbName);
-		database.drop(); // Always start with a clean DB
+		database.drop(); 										
 		topicCollection = database.getCollection(topicCollectionName);
 	}
 
 	@Test
-	public void testDBIsConnectedAndWorking() {
-		Topic topic = new Topic("test", new ArrayList<>());
+	void testRepositoryIsConnected() {
+		Topic topic = createTestTopic("test");
 		Topic saved = repository.save(topic);
 		Collection<Topic> topics = repository.findAll();
-		assertThat(topics).containsExactly(saved);
+		assertThat(topics).singleElement().isEqualTo(saved);
 	}
 	
 	@Test
 	void testDocumentInsertionThroughClientWhenTopicHasEmptyTelemetry() {
-		Topic toSave = new Topic("test", new ArrayList<>());
+		Topic toSave = createTestTopic("test");
 		// Insert documents into mongo db throgh MongoClient instead of using the repository
-		topicCollection.insertOne(new Document()
-				.append("path", toSave.getPath())
-				.append("telemetry", toSave.getTelemetry()));
+		topicCollection.insertOne(topicToDocument(toSave));
 		Collection<Topic> topics = repository.findAll();
 		assertThat(topics).singleElement().isEqualTo(toSave);
 	}
 	
 	@Test
 	void testDocumentInsertionThroughClientWhenTopicHasTelemetry() {
-		TelemetryValue tValue = new TelemetryValue(Instant.now(), "1234");
-		Topic toSave = new Topic("test", new ArrayList<>());
-		toSave.getTelemetry().add(tValue);
-		// Create Document
-		Document topicDoc = new Document()
-				.append("path", toSave.getPath())
-				.append("telemetry", asList(
-						new Document()
-						.append("timestamp", tValue.getTimestamp())
-						.append("value", tValue.getValue())));
-		// Log (just for visual inspection)
+		String tValue = "1234";
+		Topic toSave = createTestTopic("test", tValue);
 		logger.info("TOPIC: " + toSave.toString());
+		Document topicDoc = topicToDocument(toSave);
 		logger.info("TOPIC DOCUMENT: " + topicDoc.toString());
-		// Test
 		topicCollection.insertOne(topicDoc);
-		Collection<Topic> topics = repository.findAll();
+		List<Topic> topics = repository.findAll();
 		assertThat(topics).singleElement().isEqualTo(toSave);
+		Topic saved = topics.get(0);
+		assertThat(saved.getTelemetry().get(0).getValue()).isEqualTo(tValue);
 	}	
+	
+	private Topic createTestTopic(String path, String...values) {
+		Topic testTopic = new Topic(path, new ArrayList<>());
+		Arrays.stream(values)
+				.forEach(value -> testTopic.getTelemetry().add(new TelemetryValue(Instant.now(), value)));
+		return testTopic;
+	}
+	
+	private Document topicToDocument(Topic topic) {
+		Document document = new Document();
+		document.append("path",	topic.getPath());
+		List<Document> telemetry = topic.getTelemetry()
+											.stream()
+											.map(tValue -> telemetryValueToDocument(tValue))
+											.collect(Collectors.toList());
+		document.append("telemetry", telemetry);
+		return document;
+	}
+	
+	private Document telemetryValueToDocument(TelemetryValue telemetry) {
+		return new Document()
+				.append("timestamp", telemetry.getTimestamp())
+				.append("value", telemetry.getValue());
+	}
+	
 
 }
