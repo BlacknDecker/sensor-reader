@@ -60,31 +60,26 @@ class TopicRepositoryTest {
 	void testRepositoryIsConnected() {
 		Topic topic = createTestTopic("test");
 		Topic saved = repository.save(topic);
-		Collection<Topic> topics = repository.findAll();
-		assertThat(topics).singleElement().isEqualTo(saved);
+		Collection<Topic> found = repository.findAll();
+		assertThat(found).singleElement().isEqualTo(saved);
 	}
 	
 	@Test
 	void testDocumentInsertionThroughClientWhenTopicHasEmptyTelemetry() {
-		Topic toSave = createTestTopic("test");
-		// Insert documents into mongo db throgh MongoClient instead of using the repository
-		topicCollection.insertOne(topicToDocument(toSave));
-		Collection<Topic> topics = repository.findAll();
-		assertThat(topics).singleElement().isEqualTo(toSave);
+		Topic saved = createTestTopic("test");
+		topicCollection.insertOne(topicToDocument(saved));
+		Collection<Topic> found = repository.findAll();
+		assertThat(found).singleElement().isEqualTo(saved);
 	}
 	
 	@Test
 	void testDocumentInsertionThroughClientWhenTopicHasTelemetry() {
 		String tValue = "1234";
-		Topic toSave = createTestTopic("test", tValue);
-		logger.info("TOPIC: " + toSave.toString());
-		Document topicDoc = topicToDocument(toSave);
-		logger.info("TOPIC DOCUMENT: " + topicDoc.toString());
-		topicCollection.insertOne(topicDoc);
-		List<Topic> topics = repository.findAll();
-		assertThat(topics).singleElement().isEqualTo(toSave);
-		Topic saved = topics.get(0);
-		assertThat(saved.getTelemetry().get(0).getValue()).isEqualTo(tValue);
+		Topic saved = createTestTopic("test", tValue);
+		topicCollection.insertOne(topicToDocument(saved));
+		List<Topic> found = repository.findAll();
+		assertThat(found).singleElement().isEqualTo(saved);
+		assertThat(found).toString().contains(tValue);
 	}
 	
 	@Test
@@ -112,6 +107,9 @@ class TopicRepositoryTest {
 		assertThat(topicCollection.find()).isEmpty();
 		assertThat(notFound).isEmpty();
 	}
+
+	
+	/* Utilities */
 	
 	private Topic createTestTopic(String path, String...values) {
 		Topic testTopic = new Topic(path, new ArrayList<>());
