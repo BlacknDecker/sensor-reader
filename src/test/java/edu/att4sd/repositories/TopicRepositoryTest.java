@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bson.Document;
@@ -84,7 +85,33 @@ class TopicRepositoryTest {
 		assertThat(topics).singleElement().isEqualTo(toSave);
 		Topic saved = topics.get(0);
 		assertThat(saved.getTelemetry().get(0).getValue()).isEqualTo(tValue);
-	}	
+	}
+	
+	@Test
+	void testFindByPathWhenTopicExists(){
+		String topicPath = "test";
+		Topic saved = createTestTopic(topicPath, "1234");		
+		topicCollection.insertOne(topicToDocument(saved));
+		topicCollection.insertOne(topicToDocument(createTestTopic("another", "5678")));
+		Optional<Topic> found = repository.findByPath(topicPath);
+		assertThat(found).isPresent()
+							.containsInstanceOf(Topic.class)
+							.contains(saved);
+	}
+	
+	@Test
+	void testFindByPathWhenTopicNotExists() {
+		topicCollection.insertOne(topicToDocument(createTestTopic("another", "5678")));
+		Optional<Topic> notFound = repository.findByPath("1234");
+		assertThat(notFound).isEmpty();
+	}
+	
+	@Test
+	void testFindByPathWhenDBisEmpty() {
+		Optional<Topic> notFound = repository.findByPath("1234");
+		assertThat(topicCollection.find()).isEmpty();
+		assertThat(notFound).isEmpty();
+	}
 	
 	private Topic createTestTopic(String path, String...values) {
 		Topic testTopic = new Topic(path, new ArrayList<>());
