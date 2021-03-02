@@ -97,14 +97,14 @@ class TopicRepositoryTest {
 	@Test
 	void testFindByPathWhenTopicNotExists() {
 		topicCollection.insertOne(topicToDocument(createTestTopic("another", "5678")));
-		Optional<Topic> notFound = repository.findByPath("1234");
+		Optional<Topic> notFound = repository.findByPath("test");
 		assertThat(notFound).isEmpty();
 	}
 	
 	@Test
 	void testFindByPathWhenDBisEmpty() {
-		Optional<Topic> notFound = repository.findByPath("1234");
 		assertThat(topicCollection.find()).isEmpty();
+		Optional<Topic> notFound = repository.findByPath("test");
 		assertThat(notFound).isEmpty();
 	}
 
