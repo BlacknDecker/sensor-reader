@@ -2,12 +2,13 @@ package edu.att4sd.services;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +37,20 @@ class TopicServiceTest {
 		when(repository.findAll()).thenReturn(asList(topic1, topic2));
 		assertThat(topicService.getAllTopics()).containsExactly(topic1, topic2);
 	}
-		
+	
+	@Test
+	void testGetTopicByPathWhenFound() {
+		String testPath = "test/1";
+		Topic topic = createTestTopic(testPath, "12", "34");
+		when(repository.findByPath(testPath)).thenReturn(Optional.of(topic));
+		assertThat(topicService.getTopicByPath(testPath)).isSameAs(topic);
+	}
+	
+	@Test
+	void testGetTopicByPathWhenNotFound() {
+		when(repository.findByPath(anyString())).thenReturn(Optional.empty());
+		assertThat(topicService.getTopicByPath("test")).isNull();
+	}
 	
 	/* Utils */ 
 	

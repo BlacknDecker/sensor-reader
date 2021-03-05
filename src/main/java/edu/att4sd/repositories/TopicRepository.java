@@ -1,6 +1,7 @@
 package edu.att4sd.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +13,10 @@ public class TopicRepository {
 	private static final String TEMPORARY_IMPLEMENTATION = "Temporary implementation";
 	
 	public List<Topic> findAll() {
+		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
+	}
+	
+	public Optional<Topic> findByPath(String path){
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
 	}
 

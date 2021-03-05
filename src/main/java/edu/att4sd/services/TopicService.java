@@ -18,4 +18,8 @@ public class TopicService {
 		return repository.findAll();
 	}
 	
+	public Topic getTopicByPath(String path) {
+		return repository.findByPath(path).orElse(null);
+	}
+	
 }
