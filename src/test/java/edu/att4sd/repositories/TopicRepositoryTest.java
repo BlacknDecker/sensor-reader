@@ -3,6 +3,7 @@ package edu.att4sd.repositories;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -114,7 +115,7 @@ class TopicRepositoryTest {
 	private Topic createTestTopic(String path, String...values) {
 		Topic testTopic = new Topic(path, new ArrayList<>());
 		Arrays.stream(values)
-				.forEach(value -> testTopic.getTelemetry().add(new TelemetryValue(Instant.now(), value)));
+				.forEach(value -> testTopic.getTelemetry().add(new TelemetryValue(getTimestamp(), value)));
 		return testTopic;
 	}
 	
@@ -133,6 +134,10 @@ class TopicRepositoryTest {
 		return new Document()
 				.append("timestamp", telemetry.getTimestamp())
 				.append("value", telemetry.getValue());
+	}
+	
+	private Instant getTimestamp() {
+		return Instant.now().truncatedTo(ChronoUnit.MILLIS);
 	}
 	
 
