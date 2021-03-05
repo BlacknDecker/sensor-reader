@@ -37,15 +37,15 @@ public class Topic {
 
 	@Override
 	public String toString() {
-		return "[" + path + "]\n" + 
-				telemetry.stream().map(Object::toString).collect(Collectors.joining("\n"));
+		return "[" + path + "]:{" +
+				telemetry.stream().map(Object::toString).collect(Collectors.joining(", ")) + "}";
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, path, telemetry);
+		return Objects.hash(path, telemetry);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -55,8 +55,7 @@ public class Topic {
 		if (getClass() != obj.getClass())
 			return false;
 		Topic other = (Topic) obj;
-		return Objects.equals(id, other.id) &&
-				Objects.equals(path, other.path) &&
+		return Objects.equals(path, other.path) &&
 				Objects.equals(telemetry, other.telemetry);
 	}
 

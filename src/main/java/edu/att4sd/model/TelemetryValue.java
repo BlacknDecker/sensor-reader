@@ -1,23 +1,23 @@
 package edu.att4sd.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Objects;
 
 public class TelemetryValue {
-
-	private LocalDateTime timestamp;
+	
+	private Instant timestamp;
 	private String value;
 
-	public TelemetryValue(LocalDateTime timestamp, String value) {
+	public TelemetryValue(Instant timestamp, String value) {
 		this.timestamp = timestamp;
 		this.value = value;
 	}
 
-	public LocalDateTime getTimestamp() {
+	public Instant getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(LocalDateTime timestamp) {
+	public void setTimestamp(Instant timestamp) {
 		this.timestamp = timestamp;
 	}
 
