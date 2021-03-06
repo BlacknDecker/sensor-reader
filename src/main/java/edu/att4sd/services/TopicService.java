@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import edu.att4sd.model.TelemetryValue;
 import edu.att4sd.model.Topic;
 import edu.att4sd.repositories.TopicRepository;
 
@@ -30,6 +31,13 @@ public class TopicService {
 
 	public void removeTopic(Topic toRemove) {
 		repository.delete(toRemove);
+	}
+
+	public void addTelemetryValue(String topicPath, TelemetryValue newValue) {
+		Topic toUpdate = repository.findByPath(topicPath)
+							.orElseThrow(() -> new IllegalStateException("Topic not found!"));
+		toUpdate.getTelemetry().add(newValue);
+		repository.save(toUpdate);	
 	}
 	
 }

@@ -22,8 +22,10 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,12 +135,38 @@ class TopicServiceTest {
 		
 		assertThrows(IllegalStateException.class, () -> topicService.removeTopic(notToRemove));		
 	}
+	
+	@Test
+	void testAddTelemetryValueWhenTopicFound() {
+		TelemetryValue newValue = new TelemetryValue(getTimestamp(), VALUE1);
+		Topic emptyTopic = createTestTopic(TOPIC_PATH);
+		Topic updated = createTestTopic(TOPIC_PATH);
+		updated.getTelemetry().add(newValue);
+		when(repository.findByPath(TOPIC_PATH)).thenReturn(Optional.of(emptyTopic));
+		when(repository.save(any(Topic.class))).thenReturn(updated);
+		
+		topicService.addTelemetryValue(TOPIC_PATH, newValue);
+		
+		InOrder inOrder = Mockito.inOrder(repository);
+		inOrder.verify(repository).findByPath(TOPIC_PATH);
+		inOrder.verify(repository).save(updated);
+	}
+	
+	@Test
+	void testAddTelemetryValueWhenTopicNotFoundShouldThrow() {
+		TelemetryValue newValue = new TelemetryValue(getTimestamp(), VALUE1);
+		when(repository.findByPath(TOPIC_PATH)).thenReturn(Optional.empty());
+		
+		assertThrows(IllegalStateException.class, 
+						() -> topicService.addTelemetryValue(TOPIC_PATH, newValue));
+	}
 
 	/* Utils */
 
 	private Topic createTestTopic(String path, String... values) {
 		Topic testTopic = new Topic(path, new ArrayList<>());
-		Arrays.stream(values).forEach(value -> testTopic.getTelemetry().add(new TelemetryValue(getTimestamp(), value)));
+		Arrays.stream(values).forEach(value -> testTopic.getTelemetry()
+													.add(new TelemetryValue(getTimestamp(), value)));
 		return testTopic;
 	}
 
