@@ -21,5 +21,11 @@ public class TopicService {
 	public Topic getTopicByPath(String path) {
 		return repository.findByPath(path).orElse(null);
 	}
+
+	public Topic insertNewTopic(Topic topic) {
+		topic.getTelemetry().clear();
+		return repository.findByPath(topic.getPath())
+				.orElse(repository.save(topic));
+	}
 	
 }
