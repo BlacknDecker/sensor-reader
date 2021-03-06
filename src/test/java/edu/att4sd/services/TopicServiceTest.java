@@ -2,8 +2,11 @@ package edu.att4sd.services;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -113,8 +116,23 @@ class TopicServiceTest {
 		assertThat(inserted.getTelemetry()).hasSize(2);
 	}
 	
+	@Test
+	void testRemoveTopicWhenTopicExists() {
+		Topic toRemove = createTestTopic(TOPIC_PATH, VALUE1);
+		doNothing().when(repository).delete(toRemove);
+		
+		topicService.removeTopic(toRemove);
+		
+		verify(repository).delete(toRemove);
+	}
 	
-	
+	@Test
+	void testRemoveTopicWhenTopicNotExists() {
+		Topic notToRemove = createTestTopic(TOPIC_PATH, VALUE1);
+		doThrow(new IllegalStateException()).when(repository).delete(notToRemove);
+		
+		assertThrows(IllegalStateException.class, () -> topicService.removeTopic(notToRemove));		
+	}
 
 	/* Utils */
 

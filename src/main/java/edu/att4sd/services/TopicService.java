@@ -27,5 +27,9 @@ public class TopicService {
 		return repository.findByPath(topic.getPath())
 				.orElse(repository.save(topic));
 	}
+
+	public void removeTopic(Topic toRemove) {
+		repository.delete(toRemove);
+	}
 	
 }
