@@ -45,6 +45,12 @@ class TopicServiceTest {
 	private Logger logger = LoggerFactory.getLogger(TopicServiceTest.class);
 
 	@Test
+	void testGetAllTopicsWhenDbIsEmpty() {
+		when(repository.findAll()).thenReturn(new ArrayList<>());
+		assertThat(topicService.getAllTopics()).isEmpty();
+	}
+	
+	@Test
 	void testGetAllTopics() {
 		Topic topic1 = createTestTopic(TOPIC_PATH, VALUE1, VALUE2);
 		Topic topic2 = createTestTopic("test/2", "56", "78");
