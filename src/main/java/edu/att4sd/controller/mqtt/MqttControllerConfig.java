@@ -43,12 +43,12 @@ public class MqttControllerConfig {
 	}
 	
     @Bean
-    public MessageProducer mqttReceiver() {
+    public MessageProducer mqttReceiver(MessageChannel mqttControllerOutputChannel) {
     	MqttController receiver = new MqttController(mqttClientFactory(), "TelemetryReceiver");
         receiver.setConverter(new DefaultPahoMessageConverter());
-        receiver.setOutputChannel(mqttControllerOutputChannel());
+        receiver.setOutputChannel(mqttControllerOutputChannel);
         receiver.setAutoStartup(false);
         return receiver;
     }
-
+    
 }
