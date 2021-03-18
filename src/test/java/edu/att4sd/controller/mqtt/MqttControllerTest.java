@@ -2,6 +2,7 @@ package edu.att4sd.controller.mqtt;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,6 +12,8 @@ import java.util.Arrays;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -18,7 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
+import org.springframework.integration.mqtt.support.MqttMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,10 +61,31 @@ class MqttControllerTest {
 	@MockBean
 	private MessageChannel mqttControllerOutputChannel;
 	
+	@SpyBean
+	private MqttMessageConverter mqttMessageConverter;
+	
 	@Autowired
 	private MqttController mqttReceiver;	
 	
 	private Logger logger = LoggerFactory.getLogger(MqttControllerTest.class);
+	
+	private static final String TEST_TOPIC = "test/test";
+	private static final String TEST_TELEMETRYVALUE = "aTelemetryValue";
+		
+	@BeforeEach
+	void connectController() {
+		mqttReceiver.addTopic(TEST_TOPIC, 0);
+		assertThat(mqttReceiver.getTopic()).hasSize(1);
+		assertThat(Arrays.stream(mqttReceiver.getTopic())).first().isEqualTo(TEST_TOPIC);
+		mqttReceiver.start();
+	}
+	
+	@AfterEach
+	void disconnectController() {
+		mqttReceiver.stop();
+		mqttReceiver.removeTopic(TEST_TOPIC);
+		assertThat(mqttReceiver.getTopic()).isEmpty();
+	}
 	
 	@Test
 	void testMqttControllerConfiguration() {
@@ -71,36 +97,32 @@ class MqttControllerTest {
 		assertThat(Arrays.stream(mqttReceiver.getConnectionInfo().getServerURIs()).findFirst().orElse("ERROR")).isEqualTo(brokerAddress);
 		// Mqtt configs
 		assertThat(mqttReceiver.isAutoStartup()).isFalse();
-		assertThat(Arrays.stream(mqttReceiver.getTopic())).isEmpty();
 	}
 	
 	@Test
 	void testConnectToTopicAndReceiveMessage() {
-		String topic = "test/test";
-		// Instruct mock
 		when(mqttControllerOutputChannel.send(any(GenericMessage.class))).thenReturn(true);
-		// 1) Connect receiver
-		mqttReceiver.addTopic(topic, 0);
-		mqttReceiver.start();
-		// 2) Create publisher and publish a message
+		
+		sendTestTelemetry(TEST_TOPIC, TEST_TELEMETRYVALUE);
+		
+		logger.info("BROKER LOG:\n"+mqttBroker.getLogs());
+		verify(mqttControllerOutputChannel, times(1)).send(any(GenericMessage.class));
+		verify(mqttMessageConverter).toMessageBuilder(eq(TEST_TOPIC), any(MqttMessage.class));
+		
+	}
+	
+	private void sendTestTelemetry(String topic, String value) {
 		DefaultMqttPahoClientFactory clientFactory = new DefaultMqttPahoClientFactory();
-		String msgContent = "mytestmessage";
+        MqttMessage message = new MqttMessage(value.getBytes());
+		message.setQos(2);	// To send just one message
 		try {
 			IMqttClient mqttClient = clientFactory.getClientInstance(brokerAddress, "Producer");
 			mqttClient.connect();
-			MqttMessage msg = new MqttMessage(msgContent.getBytes());
-			msg.setQos(2);
-			// 3) send message
-			mqttClient.publish(topic, msg);
+			mqttClient.publish(topic, message);		
 			mqttClient.disconnect();
 		} catch (MqttException e) {
 			logger.error("Error while sending MQTT message. Cause: " + e.getMessage());
 			e.printStackTrace();
 		}
-		logger.info("BROKER LOG:\n"+mqttBroker.getLogs());
-		// 4) Verify message published
-		verify(mqttControllerOutputChannel, times(1)).send(any(GenericMessage.class));
-		mqttReceiver.stop();
-		mqttReceiver.removeTopic(topic);
 	}
 }

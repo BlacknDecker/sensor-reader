@@ -10,6 +10,7 @@ import org.springframework.integration.core.MessageProducer;
 import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
+import org.springframework.integration.mqtt.support.MqttMessageConverter;
 import org.springframework.messaging.MessageChannel;
 
 @Configuration
@@ -22,6 +23,11 @@ public class MqttControllerConfig {
 	@Bean
 	public MessageChannel mqttControllerOutputChannel() {
 		return new DirectChannel();
+	}
+	
+	@Bean
+	public MqttMessageConverter mqttMessageConverter() {
+		return new DefaultPahoMessageConverter();
 	}
 
 	@Bean
@@ -43,9 +49,9 @@ public class MqttControllerConfig {
 	}
 	
     @Bean
-    public MessageProducer mqttReceiver(MessageChannel mqttControllerOutputChannel) {
+    public MessageProducer mqttReceiver(MessageChannel mqttControllerOutputChannel, MqttMessageConverter mqttMessageConverter) {
     	MqttController receiver = new MqttController(mqttClientFactory(), "TelemetryReceiver");
-        receiver.setConverter(new DefaultPahoMessageConverter());
+        receiver.setConverter(mqttMessageConverter);
         receiver.setOutputChannel(mqttControllerOutputChannel);
         receiver.setAutoStartup(false);
         return receiver;
