@@ -21,7 +21,7 @@ public class MqttControllerConfig {
 	private String brokerUrl;
 
 	@Bean
-	public MessageChannel mqttControllerOutputChannel() {
+	public MessageChannel mqttReceiverOutputChannel() {
 		return new DirectChannel();
 	}
 	
@@ -49,10 +49,10 @@ public class MqttControllerConfig {
 	}
 	
     @Bean
-    public MessageProducer mqttReceiver(MessageChannel mqttControllerOutputChannel, MqttMessageConverter mqttMessageConverter) {
-    	MqttController receiver = new MqttController(mqttClientFactory(), "TelemetryReceiver");
+    public MessageProducer mqttReceiver(MessageChannel mqttReceiverOutputChannel, MqttMessageConverter mqttMessageConverter) {
+    	MqttReceiver receiver = new MqttReceiver(mqttClientFactory(), "TelemetryReceiver");
         receiver.setConverter(mqttMessageConverter);
-        receiver.setOutputChannel(mqttControllerOutputChannel);
+        receiver.setOutputChannel(mqttReceiverOutputChannel);
         receiver.setAutoStartup(false);
         return receiver;
     }

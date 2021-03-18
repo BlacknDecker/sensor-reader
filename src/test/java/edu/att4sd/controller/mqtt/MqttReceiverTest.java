@@ -41,7 +41,7 @@ import org.testcontainers.utility.DockerImageName;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MqttControllerConfig.class)
 @Testcontainers
-class MqttControllerTest {
+class MqttReceiverTest {
 	
 	@Container
 	public static final GenericContainer<?> mqttBroker = new GenericContainer<>(DockerImageName.parse("eclipse-mosquitto:2.0.7"))
@@ -59,21 +59,21 @@ class MqttControllerTest {
 	private String brokerAddress;
 	
 	@MockBean
-	private MessageChannel mqttControllerOutputChannel;
+	private MessageChannel mqttReceiverOutputChannel;
 	
 	@SpyBean
 	private MqttMessageConverter mqttMessageConverter;
 	
 	@Autowired
-	private MqttController mqttReceiver;	
+	private MqttReceiver mqttReceiver;	
 	
-	private Logger logger = LoggerFactory.getLogger(MqttControllerTest.class);
+	private Logger logger = LoggerFactory.getLogger(MqttReceiverTest.class);
 	
 	private static final String TEST_TOPIC = "test/test";
 	private static final String TEST_TELEMETRYVALUE = "aTelemetryValue";
 		
 	@BeforeEach
-	void connectController() {
+	void connectReceiver() {
 		mqttReceiver.addTopic(TEST_TOPIC, 0);
 		assertThat(mqttReceiver.getTopic()).hasSize(1);
 		assertThat(Arrays.stream(mqttReceiver.getTopic())).first().isEqualTo(TEST_TOPIC);
@@ -81,14 +81,14 @@ class MqttControllerTest {
 	}
 	
 	@AfterEach
-	void disconnectController() {
+	void disconnectReceiver() {
 		mqttReceiver.stop();
 		mqttReceiver.removeTopic(TEST_TOPIC);
 		assertThat(mqttReceiver.getTopic()).isEmpty();
 	}
 	
 	@Test
-	void testMqttControllerConfiguration() {
+	void testMqttReceiverConfiguration() {
 		// Connection configurations
 		assertThat(mqttReceiver.getConnectionInfo().isCleanSession()).isTrue();
 		assertThat(mqttReceiver.getConnectionInfo().getConnectionTimeout()).isEqualTo(10);
@@ -100,15 +100,14 @@ class MqttControllerTest {
 	}
 	
 	@Test
-	void testConnectToTopicAndReceiveMessage() {
-		when(mqttControllerOutputChannel.send(any(GenericMessage.class))).thenReturn(true);
+	void testMqttReceiverWhenReceiveShouldForwardOnOutputChannel() {
+		when(mqttReceiverOutputChannel.send(any(GenericMessage.class))).thenReturn(true);
 		
 		sendTestTelemetry(TEST_TOPIC, TEST_TELEMETRYVALUE);
 		
 		logger.info("BROKER LOG:\n"+mqttBroker.getLogs());
-		verify(mqttControllerOutputChannel, times(1)).send(any(GenericMessage.class));
+		verify(mqttReceiverOutputChannel, times(1)).send(any(GenericMessage.class));
 		verify(mqttMessageConverter).toMessageBuilder(eq(TEST_TOPIC), any(MqttMessage.class));
-		
 	}
 	
 	private void sendTestTelemetry(String topic, String value) {
