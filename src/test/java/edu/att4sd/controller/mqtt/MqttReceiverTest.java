@@ -39,7 +39,7 @@ import org.testcontainers.utility.DockerImageName;
 
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = MqttControllerConfig.class)
+@ContextConfiguration(classes = MqttReceiverConfig.class)
 @Testcontainers
 class MqttReceiverTest {
 	

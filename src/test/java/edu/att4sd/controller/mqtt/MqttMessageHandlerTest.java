@@ -1,7 +1,6 @@
 package edu.att4sd.controller.mqtt;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 
@@ -20,7 +19,7 @@ import edu.att4sd.services.TopicService;
 
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {MqttControllerConfig.class})
+@ContextConfiguration(classes = {MqttMessageHandlerConfig.class, MqttReceiverConfig.class})
 class MqttMessageHandlerTest {
 	
 	@MockBean
