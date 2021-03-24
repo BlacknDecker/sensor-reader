@@ -14,6 +14,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -31,6 +32,9 @@ class TopicWebControllerTest {
 	
 	@MockBean
 	private TopicService topicService;
+	
+	@Value("${broker:tcp://localhost}")
+	private String brokerUrl;
 
 	@Test
 	public void testStatus200() throws Exception {
@@ -57,6 +61,12 @@ class TopicWebControllerTest {
 			.andExpect(view().name("index"))
 			.andExpect(model().attribute("topics", Collections.emptyList()))
 			.andExpect(model().attribute("message", "No topics"));
+	}
+	
+	@Test
+	void testIndexViewShowsBroker() throws Exception {
+		mvc.perform(get("/"))
+		.andExpect(model().attribute("broker", brokerUrl));
 	}
 
 }
