@@ -1,6 +1,7 @@
 package edu.att4sd.controller.web;
 
 import static java.util.Arrays.asList;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -67,6 +68,14 @@ class TopicWebControllerTest {
 	void testIndexViewShowsBroker() throws Exception {
 		mvc.perform(get("/"))
 		.andExpect(model().attribute("broker", brokerUrl));
+	}
+	
+	@Test
+	void testNewTopicView() throws Exception {
+		mvc.perform(get("/new"))
+			.andExpect(view().name("new"))
+			.andExpect(model().attribute("topic", new Topic()));
+		verifyNoInteractions(topicService);
 	}
 
 }

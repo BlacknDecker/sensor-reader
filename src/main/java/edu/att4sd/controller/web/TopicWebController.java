@@ -28,5 +28,11 @@ public class TopicWebController {
 		model.addAttribute("broker", brokerUrl);
 		return "index";
 	}
+	
+	@GetMapping("/new")
+	public String newTopic(Model model) {
+		model.addAttribute("topic", new Topic());
+		return "new";
+	}
 
 }
