@@ -9,6 +9,8 @@ public class Topic {
 	private String id;
 	private String path;
 	private List<TelemetryValue> telemetry;
+	
+	public Topic() { }
 
 	public Topic(String path, List<TelemetryValue> telemetry) {
 		this.path = path;
@@ -37,8 +39,15 @@ public class Topic {
 
 	@Override
 	public String toString() {
-		return "[" + path + "]:{" +
-				telemetry.stream().map(Object::toString).collect(Collectors.joining(", ")) + "}";
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		sb.append(path == null ? "-" : path);
+		sb.append("]:{");
+		sb.append(telemetry == null ? "-" : telemetry.stream()
+													 .map(Object::toString)
+													 .collect(Collectors.joining(", ")));
+		sb.append("}");
+		return sb.toString();
 	}
 
 	@Override
