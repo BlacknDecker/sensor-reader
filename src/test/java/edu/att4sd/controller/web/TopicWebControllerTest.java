@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,18 @@ class TopicWebControllerTest {
 		
 		mvc.perform(get("/"))
 			.andExpect(view().name("index"))
-			.andExpect(model().attribute("topics", topics));
+			.andExpect(model().attribute("topics", topics))
+			.andExpect(model().attribute("message", ""));
+	}
+	
+	@Test
+	void testIndexViewShowsMessageWhenThereAreNoTopics() throws Exception {
+		when(topicService.getAllTopics()).thenReturn(Collections.emptyList());
+		
+		mvc.perform(get("/"))
+			.andExpect(view().name("index"))
+			.andExpect(model().attribute("topics", Collections.emptyList()))
+			.andExpect(model().attribute("message", "No topics"));
 	}
 
 }
