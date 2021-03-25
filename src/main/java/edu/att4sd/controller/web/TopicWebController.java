@@ -9,9 +9,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import edu.att4sd.dto.TopicDto;
+import edu.att4sd.exceptions.TopicNotFoundViewException;
 import edu.att4sd.model.Topic;
 import edu.att4sd.services.TopicService;
 
@@ -45,6 +47,18 @@ public class TopicWebController {
 		topicService.insertNewTopic(newTopic);
 		return "redirect:/";
 	}
+	
+	@GetMapping("/show/{id}")
+	public String showTopic(@PathVariable String id, Model model) {
+		Topic topic = topicService.getTopicById(id);
+		if(topic == null) {
+			throw new TopicNotFoundViewException();
+		}
+		model.addAttribute("topic", topic);
+		model.addAttribute("message", topic.getTelemetry().isEmpty() ? "No telemetry available" : "");
+		return "show";
+	}
+	
 
 	private Topic dtoToTopic(TopicDto topicDto) {
 		return new Topic(topicDto.getPath(), new ArrayList<>());

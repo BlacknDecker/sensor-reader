@@ -18,4 +18,8 @@ public class TopicService {
 	public Topic insertNewTopic(Topic topic) {
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
 	}
+
+	public Topic getTopicById(String string) {
+		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
+	}
 }

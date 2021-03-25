@@ -24,6 +24,10 @@ public class Topic {
 	public String getPath() {
 		return path;
 	}
+	
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public void setPath(String path) {
 		this.path = path;
