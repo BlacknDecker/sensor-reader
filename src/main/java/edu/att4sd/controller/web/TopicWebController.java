@@ -59,6 +59,13 @@ public class TopicWebController {
 		return "show";
 	}
 	
+	@GetMapping("/delete/{id}")
+	public String deleteTopic(@PathVariable String id, Model model) {
+		if(topicService.deleteTopicById(id)) {
+			return "redirect:/";
+		}
+		throw new TopicNotFoundViewException(); 
+	}
 
 	private Topic dtoToTopic(TopicDto topicDto) {
 		return new Topic(topicDto.getPath(), new ArrayList<>());

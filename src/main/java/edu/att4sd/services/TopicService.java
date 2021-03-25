@@ -19,7 +19,11 @@ public class TopicService {
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
 	}
 
-	public Topic getTopicById(String string) {
+	public Topic getTopicById(String id) {
+		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
+	}
+
+	public boolean deleteTopicById(String id) {
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
 	}
 }

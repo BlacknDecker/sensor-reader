@@ -123,6 +123,22 @@ class TopicWebControllerTest {
 			.andExpect(status().is(404));
 	}
 	
+	@Test
+	void testDeleteTopicView() throws Exception {
+		when(topicService.deleteTopicById("qwerty")).thenReturn(true);
+		
+		mvc.perform(get("/delete/qwerty"))
+			.andExpect(view().name("redirect:/"));
+	}
+	
+	@Test
+	void testDeleteTopicViewWhenTopicNotFoundShouldThrow404() throws Exception {
+		when(topicService.deleteTopicById("qwerty")).thenReturn(false);
+		
+		mvc.perform(get("/delete/qwerty"))
+			.andExpect(status().is(404));
+	}
+	
 	/* Utils */
 
 	private Topic createTestTopic(String id, String path, String... values) {
