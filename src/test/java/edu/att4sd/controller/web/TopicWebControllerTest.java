@@ -3,7 +3,9 @@ package edu.att4sd.controller.web;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -77,5 +79,14 @@ class TopicWebControllerTest {
 			.andExpect(model().attribute("topic", new Topic()));
 		verifyNoInteractions(topicService);
 	}
-
+	
+	@Test
+	void testSaveNewTopic() throws Exception {
+		mvc.perform(post("/save")
+						.param("path", "test/path"))
+			.andExpect(view().name("redirect:/"));
+		
+		verify(topicService).insertNewTopic(new Topic("test/path", new ArrayList<>()));
+	}
+	
 }

@@ -14,5 +14,8 @@ public class TopicService {
 	public List<Topic> getAllTopics() {
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
 	}
-
+	
+	public Topic insertNewTopic(Topic topic) {
+		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
+	}
 }
