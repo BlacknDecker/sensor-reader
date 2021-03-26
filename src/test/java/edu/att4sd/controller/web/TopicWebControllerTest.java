@@ -43,21 +43,29 @@ class TopicWebControllerTest {
 	@Value("${broker:tcp://localhost}")
 	private String brokerUrl;
 
+	private static final String MESSAGE_ATTRIBUTE = "message";
+	private static final String TOPICS_ATTRIBUTE = "topics";
+	private static final String TOPIC_ATTRIBUTE = "topic";
+
+	private static final String TOPIC_ID = "qwerty";
+	private static final String TOPIC_PATH = "test/path";
+
+	
 	@Test
-	public void testStatus200() throws Exception {
+	void testStatus200() throws Exception {
 		mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
 	}
 	
 	@Test
 	void testIndexViewShowsTopics() throws Exception {
-		List<Topic> topics = asList(new Topic("test/path", new ArrayList<>()));
+		List<Topic> topics = asList(new Topic(TOPIC_PATH, new ArrayList<>()));
 		
 		when(topicService.getAllTopics()).thenReturn(topics);
 		
 		mvc.perform(get("/"))
 			.andExpect(view().name("index"))
-			.andExpect(model().attribute("topics", topics))
-			.andExpect(model().attribute("message", ""));
+			.andExpect(model().attribute(TOPICS_ATTRIBUTE, topics))
+			.andExpect(model().attribute(MESSAGE_ATTRIBUTE, ""));
 	}
 	
 	@Test
@@ -66,8 +74,8 @@ class TopicWebControllerTest {
 		
 		mvc.perform(get("/"))
 			.andExpect(view().name("index"))
-			.andExpect(model().attribute("topics", Collections.emptyList()))
-			.andExpect(model().attribute("message", "No topics"));
+			.andExpect(model().attribute(TOPICS_ATTRIBUTE, Collections.emptyList()))
+			.andExpect(model().attribute(MESSAGE_ATTRIBUTE, "No topics"));
 	}
 	
 	@Test
@@ -80,44 +88,44 @@ class TopicWebControllerTest {
 	void testNewTopicView() throws Exception {
 		mvc.perform(get("/new"))
 			.andExpect(view().name("new"))
-			.andExpect(model().attribute("topic", new Topic()));
+			.andExpect(model().attribute(TOPIC_ATTRIBUTE, new Topic()));
 		verifyNoInteractions(topicService);
 	}
 	
 	@Test
 	void testSaveNewTopic() throws Exception {
 		mvc.perform(post("/save")
-						.param("path", "test/path"))
+						.param("path", TOPIC_PATH))
 			.andExpect(view().name("redirect:/"));
 		
-		verify(topicService).insertNewTopic(new Topic("test/path", new ArrayList<>()));
+		verify(topicService).insertNewTopic(new Topic(TOPIC_PATH, new ArrayList<>()));
 	}
 	
 	@Test
 	void testShowTopicViewWhenTopicHasTelemetry() throws Exception {
-		Topic testTopic = createTestTopic("qwerty", "test/path", "1.0", "1.2", "0.3");
-		when(topicService.getTopicById("qwerty")).thenReturn(testTopic);
+		Topic testTopic = createTestTopic(TOPIC_ID, TOPIC_PATH, "1.0", "1.2", "0.3");
+		when(topicService.getTopicById(TOPIC_ID)).thenReturn(testTopic);
 		
 		mvc.perform(get("/show/qwerty"))
 			.andExpect(view().name("show"))
-			.andExpect(model().attribute("topic", testTopic))
-			.andExpect(model().attribute("message", ""));
+			.andExpect(model().attribute(TOPIC_ATTRIBUTE, testTopic))
+			.andExpect(model().attribute(MESSAGE_ATTRIBUTE, ""));
 	}
 	
 	@Test
 	void testShowTopicViewWhenTopicHasNoTelemetry() throws Exception {
-		Topic testTopic = createTestTopic("qwerty", "test/path");
-		when(topicService.getTopicById("qwerty")).thenReturn(testTopic);
+		Topic testTopic = createTestTopic(TOPIC_ID, TOPIC_PATH);
+		when(topicService.getTopicById(TOPIC_ID)).thenReturn(testTopic);
 		
 		mvc.perform(get("/show/qwerty"))
 			.andExpect(view().name("show"))
-			.andExpect(model().attribute("topic", testTopic))
-			.andExpect(model().attribute("message", "No telemetry available"));
+			.andExpect(model().attribute(TOPIC_ATTRIBUTE, testTopic))
+			.andExpect(model().attribute(MESSAGE_ATTRIBUTE, "No telemetry available"));
 	}
 	
 	@Test
 	void testShowTopicViewWhenTopicNotFoundShouldThrow404() throws Exception {
-		when(topicService.getTopicById("qwerty")).thenReturn(null);
+		when(topicService.getTopicById(TOPIC_ID)).thenReturn(null);
 		
 		mvc.perform(get("/show/qwerty"))
 			.andExpect(status().is(404));
@@ -125,7 +133,7 @@ class TopicWebControllerTest {
 	
 	@Test
 	void testDeleteTopicView() throws Exception {
-		when(topicService.deleteTopicById("qwerty")).thenReturn(true);
+		when(topicService.deleteTopicById(TOPIC_ID)).thenReturn(true);
 		
 		mvc.perform(get("/delete/qwerty"))
 			.andExpect(view().name("redirect:/"));
@@ -133,7 +141,7 @@ class TopicWebControllerTest {
 	
 	@Test
 	void testDeleteTopicViewWhenTopicNotFoundShouldThrow404() throws Exception {
-		when(topicService.deleteTopicById("qwerty")).thenReturn(false);
+		when(topicService.deleteTopicById(TOPIC_ID)).thenReturn(false);
 		
 		mvc.perform(get("/delete/qwerty"))
 			.andExpect(status().is(404));

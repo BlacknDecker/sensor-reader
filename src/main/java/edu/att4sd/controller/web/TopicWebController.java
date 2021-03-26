@@ -20,6 +20,11 @@ import edu.att4sd.services.TopicService;
 @Controller
 public class TopicWebController {
 	
+	private static final String BROKER_ATTRIBUTE = "broker";
+	private static final String MESSAGE_ATTRIBUTE = "message";
+	private static final String TOPICS_ATTRIBUTE = "topics";
+	private static final String TOPIC_ATTRIBUTE = "topic";
+
 	@Autowired
 	private TopicService topicService;
 	
@@ -29,15 +34,15 @@ public class TopicWebController {
 	@GetMapping("/")
 	public String index(Model model) {
 		List<Topic> allTopics = topicService.getAllTopics();
-		model.addAttribute("topics", allTopics);
-		model.addAttribute("message", allTopics.isEmpty() ? "No topics" : "");
-		model.addAttribute("broker", brokerUrl);
+		model.addAttribute(TOPICS_ATTRIBUTE, allTopics);
+		model.addAttribute(MESSAGE_ATTRIBUTE, allTopics.isEmpty() ? "No topics" : "");
+		model.addAttribute(BROKER_ATTRIBUTE, brokerUrl);
 		return "index";
 	}
 	
 	@GetMapping("/new")
 	public String newTopic(Model model) {
-		model.addAttribute("topic", new Topic());
+		model.addAttribute(TOPIC_ATTRIBUTE, new Topic());
 		return "new";
 	}
 	
@@ -54,8 +59,8 @@ public class TopicWebController {
 		if(topic == null) {
 			throw new TopicNotFoundViewException();
 		}
-		model.addAttribute("topic", topic);
-		model.addAttribute("message", topic.getTelemetry().isEmpty() ? "No telemetry available" : "");
+		model.addAttribute(TOPIC_ATTRIBUTE, topic);
+		model.addAttribute(MESSAGE_ATTRIBUTE, topic.getTelemetry().isEmpty() ? "No telemetry available" : "");
 		return "show";
 	}
 	
