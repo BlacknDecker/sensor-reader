@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<title>Topics</title>
+</head>
+<body>
+	<div>
+		<p id="broker_info">
+			<span>Broker:</span> <span th:text="${broker}"></span> 
+		</p>
+	</div>
+	<!-- IF NO TOPICS -->
+	<div th:if="${topics.empty}">
+		<div>No topics</div>
+	</div>
+	<!-- ELSE -->
+	<div th:unless="${topics.empty}">
+		<table id="topics_table">
+			<thead>
+				<tr>
+					<th>Topics</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="topic : ${topics}">
+					<td th:text="${topic.path}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
