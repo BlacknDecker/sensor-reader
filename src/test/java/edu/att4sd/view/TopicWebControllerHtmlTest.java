@@ -107,6 +107,47 @@ public class TopicWebControllerHtmlTest {
 		verify(topicService).insertNewTopic(new Topic(newTopicPath, new ArrayList<>()));
 	}
 
+	
+	/* SHOW_TOPIC PAGE */
+	
+	
+	@Test
+	void testShowTopicPageShowsTopicPath() throws Exception {
+		Topic toShow = createTestTopic("testId", "test/path");
+		when(topicService.getTopicById("testId"))
+			.thenReturn(toShow);
+		
+		HtmlPage page = webClient.getPage("/show/testId");
+		
+		HtmlParagraph topicPath = page.getHtmlElementById("topic_path");
+		assertThat(topicPath.asText()).isEqualTo("Path: test/path");	
+	}
+	
+	@Test
+	void testShowTopicPageWhenNoTelemetryAvailable() throws Exception {
+		Topic toShow = createTestTopic("testId", "test/path");
+		when(topicService.getTopicById("testId"))
+			.thenReturn(toShow);
+		
+		HtmlPage page = webClient.getPage("/show/testId");
+		
+		assertThat(page.getBody().getTextContent()).contains("No telemetry available");
+	}
+	
+	@Test
+	void testShowTopicPageWhenTelemetryAvailable() throws Exception {
+		Topic toShow = createTestTopic("testId", "test/path", "1.1", "2.3");
+		when(topicService.getTopicById("testId"))
+			.thenReturn(toShow);
+		
+		HtmlPage page = webClient.getPage("/show/testId");
+		
+		HtmlTable telemetryTable = page.getHtmlElementById("telemetry_table");
+		assertThat(telemetryTable.asText())
+			.isEqualTo("Timestamp	Value\n" +
+					   toShow.getTelemetry().get(0).getTimestamp() + "	1.1\n"+
+					   toShow.getTelemetry().get(1).getTimestamp() + "	2.3");
+	}
 
 	
 	/* Utils */
