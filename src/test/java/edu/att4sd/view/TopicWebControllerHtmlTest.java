@@ -3,6 +3,7 @@ package edu.att4sd.view;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -19,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlParagraph;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
@@ -41,6 +43,8 @@ public class TopicWebControllerHtmlTest {
 	@MockBean
 	private TopicService topicService;
 	
+	
+	/* HOMEPAGE */
 	
 	@Test
 	void testHomePageTitle() throws Exception {
@@ -81,6 +85,28 @@ public class TopicWebControllerHtmlTest {
 					   "test/path2");
 	}
 	
+	
+	/* NEW_TOPIC PAGE */
+	
+	
+	@Test
+	void testNewTopicPage() throws Exception {
+		String newTopicPath = "test/path";
+		Topic saved = createTestTopic("testId", newTopicPath);
+		when(topicService.insertNewTopic(new Topic(newTopicPath, new ArrayList<>())))
+			.thenReturn(saved);
+		
+		HtmlPage page = webClient.getPage("/new");
+		// Get the form	
+		final HtmlForm form = page.getFormByName("topic_form");
+		assertThat(form.getInputByName("path").asText()).isEmpty();
+		// Insert new topic
+		form.getInputByName("path").setValueAttribute(newTopicPath);
+		form.getButtonByName("submit_button").click();
+		// Verify
+		verify(topicService).insertNewTopic(new Topic(newTopicPath, new ArrayList<>()));
+	}
+
 
 	
 	/* Utils */

@@ -1,6 +1,7 @@
 package edu.att4sd.controller.web;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import edu.att4sd.dto.TopicDto;
 import edu.att4sd.model.TelemetryValue;
 import edu.att4sd.model.Topic;
 import edu.att4sd.services.TopicService;
@@ -46,6 +48,7 @@ class TopicWebControllerTest {
 	private static final String MESSAGE_ATTRIBUTE = "message";
 	private static final String TOPICS_ATTRIBUTE = "topics";
 	private static final String TOPIC_ATTRIBUTE = "topic";
+	private static final String TOPIC_PATH_ATTRIBUTE = "topicPath";
 
 	private static final String TOPIC_ID = "qwerty";
 	private static final String TOPIC_PATH = "test/path";
@@ -88,7 +91,7 @@ class TopicWebControllerTest {
 	void testNewTopicView() throws Exception {
 		mvc.perform(get("/new"))
 			.andExpect(view().name("new"))
-			.andExpect(model().attribute(TOPIC_ATTRIBUTE, new Topic()));
+			.andExpect(model().attribute(TOPIC_PATH_ATTRIBUTE, any(TopicDto.class)));
 		verifyNoInteractions(topicService);
 	}
 	
@@ -99,6 +102,14 @@ class TopicWebControllerTest {
 			.andExpect(view().name("redirect:/"));
 		
 		verify(topicService).insertNewTopic(new Topic(TOPIC_PATH, new ArrayList<>()));
+	}
+	
+	@Test
+	void testSaveNewTopicWhenPathIsEmptyShouldThrow() throws Exception {
+		mvc.perform(post("/save")
+				.param("path", ""))
+			.andExpect(status().is(400));
+		
 	}
 	
 	@Test

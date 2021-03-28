@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import edu.att4sd.dto.TopicDto;
+import edu.att4sd.exceptions.EmptyTopicPathException;
 import edu.att4sd.exceptions.TopicNotFoundViewException;
 import edu.att4sd.model.Topic;
 import edu.att4sd.services.TopicService;
@@ -24,6 +25,7 @@ public class TopicWebController {
 	private static final String MESSAGE_ATTRIBUTE = "message";
 	private static final String TOPICS_ATTRIBUTE = "topics";
 	private static final String TOPIC_ATTRIBUTE = "topic";
+	private static final String TOPIC_PATH_ATTRIBUTE = "topicPath";
 
 	@Autowired
 	private TopicService topicService;
@@ -42,17 +44,20 @@ public class TopicWebController {
 	
 	@GetMapping("/new")
 	public String newTopic(Model model) {
-		model.addAttribute(TOPIC_ATTRIBUTE, new Topic());
+		model.addAttribute(TOPIC_PATH_ATTRIBUTE, new TopicDto());
 		return "new";
 	}
 	
 	@PostMapping("/save")
-	public String saveTopic(@ModelAttribute("newtopic") TopicDto topicDto, Model model) {
+	public String saveTopic(@ModelAttribute(TOPIC_PATH_ATTRIBUTE) TopicDto topicDto, Model model) {
+		if(topicDto.getPath().isEmpty()) {
+			throw new EmptyTopicPathException();
+		}
 		Topic newTopic = dtoToTopic(topicDto);
 		topicService.insertNewTopic(newTopic);
 		return "redirect:/";
 	}
-	
+		
 	@GetMapping("/show/{id}")
 	public String showTopic(@PathVariable String id, Model model) {
 		Topic topic = topicService.getTopicById(id);
