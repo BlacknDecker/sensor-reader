@@ -10,6 +10,7 @@
 		<p id="topic_path">
 			<span>Path:</span> <span th:text="${topic.path}"></span>
 		</p>
+		<a th:href="@{/}">Home</a>
 	</div>
 	<!-- IF NO TELEMETRY -->
 	<div th:if="${topic.telemetry.empty}">

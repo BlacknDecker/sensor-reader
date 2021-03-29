@@ -10,6 +10,9 @@
 			<span>Broker:</span> <span th:text="${broker}"></span> 
 		</p>
 	</div>
+	<div>
+		<a th:href="@{/new}">Add Topic</a>
+	</div>
 	<!-- IF NO TOPICS -->
 	<div th:if="${topics.empty}">
 		<div>No topics</div>
@@ -25,6 +28,8 @@
 			<tbody>
 				<tr th:each="topic : ${topics}">
 					<td th:text="${topic.path}"></td>
+					<td><a th:href="@{'/edit/' + ${topic.id}}">Show</a></td>
+					<td><a th:href="@{'/delete/' + ${topic.id}}">Delete</a></td>
 				</tr>
 			</tbody>
 		</table>

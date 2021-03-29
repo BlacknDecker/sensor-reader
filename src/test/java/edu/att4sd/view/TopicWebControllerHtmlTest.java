@@ -81,8 +81,20 @@ public class TopicWebControllerHtmlTest {
 		HtmlTable table = page.getHtmlElementById("topics_table");
 		assertThat(table.asText())
 			.isEqualTo("Topics\n" +
-					   "test/path1\n" +
-					   "test/path2");
+					   "test/path1	Show	Delete\n" +
+					   "test/path2	Show	Delete"
+					   );
+		page.getAnchorByHref("/edit/abcd");
+		page.getAnchorByHref("/delete/abcd");
+		page.getAnchorByHref("/edit/efgh");
+		page.getAnchorByHref("/delete/efgh");
+	}
+	
+	@Test
+	void testHomePageLinkToCreateNewTopic() throws Exception {
+		HtmlPage page = webClient.getPage("/");
+		
+		assertThat(page.getAnchorByText("Add Topic").getHrefAttribute()).isEqualTo("/new");
 	}
 	
 	
@@ -105,6 +117,13 @@ public class TopicWebControllerHtmlTest {
 		form.getButtonByName("submit_button").click();
 		// Verify
 		verify(topicService).insertNewTopic(new Topic(newTopicPath, new ArrayList<>()));
+	}
+	
+	@Test
+	void testNewTopicPageLinkToHomePage() throws Exception {
+		HtmlPage page = webClient.getPage("/new");
+		
+		assertThat(page.getAnchorByText("Cancel").getHrefAttribute()).isEqualTo("/");
 	}
 
 	
@@ -147,6 +166,17 @@ public class TopicWebControllerHtmlTest {
 			.isEqualTo("Timestamp	Value\n" +
 					   toShow.getTelemetry().get(0).getTimestamp() + "	1.1\n"+
 					   toShow.getTelemetry().get(1).getTimestamp() + "	2.3");
+	}
+	
+	@Test
+	void testShowTopicPageLinkToHomePage() throws Exception {
+		Topic toShow = createTestTopic("testId", "test/path");
+		when(topicService.getTopicById("testId"))
+			.thenReturn(toShow);
+		
+		HtmlPage page = webClient.getPage("/show/testId");
+		
+		assertThat(page.getAnchorByText("Home").getHrefAttribute()).isEqualTo("/");
 	}
 
 	
