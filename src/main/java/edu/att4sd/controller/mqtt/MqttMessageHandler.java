@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.mqtt.support.MqttHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.stereotype.Component;
 
 import edu.att4sd.model.TelemetryValue;
@@ -28,9 +27,8 @@ public class MqttMessageHandler implements MessageHandler{
 	public void handleMessage(Message<?> message) {
 		Optional<TelemetryValue> telemetryOpt = createTelemetryValue(message);
 		if(telemetryOpt.isPresent()) {
-			MessageHeaders headers = message.getHeaders(); 
-			// This check is redundant since its already handled by createTelemetryValue
-			String topic = headers.containsKey(TOPIC_HEADER) ? headers.get(TOPIC_HEADER).toString() : "";
+			// The default value should never be used, since we already tested the header presence
+			String topic = message.getHeaders().getOrDefault(TOPIC_HEADER, "").toString();
 			TelemetryValue telemetryValue = telemetryOpt.get();
 			logger.debug("[" + topic + "] - " + telemetryValue.toString());
 			service.addTelemetryValue(topic, telemetryValue);
