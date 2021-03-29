@@ -32,7 +32,7 @@ import edu.att4sd.services.TopicService;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = TopicWebController.class)
-public class TopicWebControllerHtmlTest {
+class TopicWebControllerHtmlTest {
 	
 	@Autowired
 	private WebClient webClient;
