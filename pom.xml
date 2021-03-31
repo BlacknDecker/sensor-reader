@@ -21,6 +21,7 @@
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
 		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
+		<pitest.plugin.version>1.6.3</pitest.plugin.version>
 
 		<sonar.plugin.version>3.7.0.1746</sonar.plugin.version>
 		<sonar.organization>lores</sonar.organization>
@@ -271,6 +272,61 @@
 				</plugins>
 			</build>
 		</profile>
+
+		<profile>
+			<id>mutation-tests</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<skip.integration-tests>true</skip.integration-tests>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.pitest</groupId>
+						<artifactId>pitest-maven</artifactId>
+						<version>${pitest.plugin.version}</version>
+						<dependencies>
+							<dependency>
+								<groupId>org.pitest</groupId>
+								<artifactId>pitest-junit5-plugin</artifactId>
+								<version>0.12</version>
+							</dependency>
+						</dependencies>
+						<configuration>
+							<targetClasses>
+								<param>edu.att4sd.*</param>
+							</targetClasses>
+							<excludedClasses>
+								<param>edu.att4sd.SensorReaderApplication</param>
+								<param>edu.att4sd.model.*</param>
+							</excludedClasses>
+							<targetTests>
+								<param>edu.att4sd.*</param>
+							</targetTests>
+							<excludedTestClasses>
+								<param>edu.att4sd.SensorReaderApplicationTests*</param>
+							</excludedTestClasses>
+							<mutators>
+								<mutator>DEFAULTS</mutator>
+								<mutator>NON_VOID_METHOD_CALLS</mutator>
+							</mutators>
+							<mutationThreshold>80</mutationThreshold>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>mutationCoverage</goal>
+								</goals>
+								<phase>verify</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
 	</profiles>
 
 </project>
