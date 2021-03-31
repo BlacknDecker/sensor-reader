@@ -131,7 +131,7 @@
 			<artifactId>bootstrap</artifactId>
 			<version>3.4.1</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>de.bwaldvogel</groupId>
 			<artifactId>mongo-java-server</artifactId>
@@ -290,6 +290,7 @@
 							</dependency>
 						</dependencies>
 						<configuration>
+							<verbose>true</verbose>
 							<targetClasses>
 								<param>edu.att4sd.*</param>
 							</targetClasses>
@@ -300,6 +301,9 @@
 							<targetTests>
 								<param>edu.att4sd.*</param>
 							</targetTests>
+							<excludedTestClasses>
+								<param>edu.att4sd.SensorReaderApplicationTests*</param>
+							</excludedTestClasses>
 							<mutators>
 								<mutator>DEFAULTS</mutator>
 							</mutators>
