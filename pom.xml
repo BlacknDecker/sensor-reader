@@ -43,9 +43,9 @@
 		</sonar.tests>
 		<sonar.coverage.exclusions>
 			**/model/*,
-			**/*Application.*
-			**/ControlBusConfig.*
-			**/MqttMessageHandlerConfig.*
+			**/*Application.*,
+			**/ControlBusConfig.*,
+			**/MqttMessageHandlerConfig.*,
 			**/ChannelsConfig.*
 		</sonar.coverage.exclusions>
 	</properties>
