@@ -297,12 +297,14 @@
 							<excludedClasses>
 								<param>edu.att4sd.SensorReaderApplication</param>
 								<param>edu.att4sd.model.*</param>
+								<param>edu.att4sd.repositories.TopicRepository</param>
 							</excludedClasses>
 							<targetTests>
 								<param>edu.att4sd.*</param>
 							</targetTests>
 							<excludedTestClasses>
 								<param>edu.att4sd.SensorReaderApplicationTests*</param>
+								<param>edu.att4sd.repositories.*</param>
 							</excludedTestClasses>
 							<mutators>
 								<mutator>DEFAULTS</mutator>
