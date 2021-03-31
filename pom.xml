@@ -44,6 +44,9 @@
 		<sonar.coverage.exclusions>
 			**/model/*,
 			**/*Application.*
+			**/ControlBusConfig.*
+			**/MqttMessageHandlerConfig.*
+			**/ChannelsConfig.*
 		</sonar.coverage.exclusions>
 	</properties>
 
@@ -241,6 +244,9 @@
 							<excludes>
 								<exclude>**/*Application.*</exclude>
 								<exclude>**/model/*</exclude>
+								<exclude>**/ControlBusConfig.*</exclude>
+								<exclude>**/MqttMessageHandlerConfig.*</exclude>					
+								<exclude>**/ChannelsConfig.*</exclude>
 							</excludes>
 						</configuration>
 						<executions>

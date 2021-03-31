@@ -58,7 +58,7 @@ class MqttReceiverTest {
 	@Value("${broker}")
 	private String brokerAddress;
 	
-	@MockBean
+	@MockBean(name="mqttReceiverOutputChannel")
 	private MessageChannel mqttReceiverOutputChannel;
 	
 	@SpyBean
