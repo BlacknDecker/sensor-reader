@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<skip.unit-tests>false</skip.unit-tests>
-		<skip.integration-tests>true</skip.integration-tests>
+		<skip.integration-tests>false</skip.integration-tests>
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
 		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
@@ -186,7 +186,6 @@
 						<configuration>
 							<skipTests>${skip.integration-tests}</skipTests>
 							<includes>
-								<include>**/*ApplicationTests.java</include>
 								<include>**/*IT.java</include>
 							</includes>
 						</configuration>
@@ -197,6 +196,41 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>0.27.2</version>
+				<configuration>
+					<images>
+						<image>
+							<name>mongo:4.2.3</name>
+							<run>
+								<ports>
+									<port>27017:27017</port>
+								</ports>
+							</run>
+						</image>
+					</images>
+				</configuration>
+				<executions>
+					<execution>
+						<id>docker:start</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>start</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>docker:stop</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>stop</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 
 		<pluginManagement>
@@ -303,11 +337,12 @@
 								<param>edu.att4sd.*</param>
 							</targetTests>
 							<excludedTestClasses>
-								<param>edu.att4sd.SensorReaderApplicationTests*</param>
 								<param>edu.att4sd.repositories.*</param>
+								<param>edu.att4sd.it.*</param>
 							</excludedTestClasses>
 							<mutators>
 								<mutator>DEFAULTS</mutator>
+								<mutator>NON_VOID_METHOD_CALLS</mutator>
 							</mutators>
 							<mutationThreshold>80</mutationThreshold>
 						</configuration>
