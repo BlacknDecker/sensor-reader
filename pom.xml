@@ -344,7 +344,7 @@
 								<mutator>DEFAULTS</mutator>
 								<mutator>NON_VOID_METHOD_CALLS</mutator>
 							</mutators>
-							<mutationThreshold>80</mutationThreshold>
+							<mutationThreshold>100</mutationThreshold>
 						</configuration>
 						<executions>
 							<execution>
