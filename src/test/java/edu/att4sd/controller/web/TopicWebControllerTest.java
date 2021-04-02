@@ -1,6 +1,7 @@
 package edu.att4sd.controller.web;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -20,10 +21,15 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -41,6 +47,12 @@ class TopicWebControllerTest {
 	
 	@MockBean
 	private TopicService topicService;
+	
+	@Captor
+	private ArgumentCaptor<Message<?>> messageCaptor;
+	
+	@MockBean(name="commandChannel")
+	private MessageChannel commandChannel;
 	
 	@Value("${broker:tcp://localhost}")
 	private String brokerUrl;
@@ -97,11 +109,20 @@ class TopicWebControllerTest {
 	
 	@Test
 	void testSaveNewTopic() throws Exception {
+		Message<String> toSend = MessageBuilder
+				.withPayload("@mqttReceiver.addTopic('" + TOPIC_PATH + "', 2)")
+				.build();
+		when(commandChannel.send(toSend)).thenReturn(true);
+		
 		mvc.perform(post("/save")
 						.param("path", TOPIC_PATH))
 			.andExpect(view().name("redirect:/"));
 		
 		verify(topicService).insertNewTopic(new Topic(TOPIC_PATH, new ArrayList<>()));
+		verify(commandChannel).send(messageCaptor.capture());
+		assertThat(messageCaptor.getAllValues()).hasSize(1);
+		Message<?> captured = messageCaptor.getValue();
+		assertThat(captured.getPayload()).isEqualTo(toSend.getPayload());
 	}
 	
 	@Test

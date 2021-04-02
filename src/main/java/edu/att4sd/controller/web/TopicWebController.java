@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +33,10 @@ public class TopicWebController {
 
 	@Autowired
 	private TopicService topicService;
+	
+	@Autowired
+	@Qualifier("commandChannel")
+	private MessageChannel commandChannel;
 	
 	@Value("${broker:tcp://localhost}")
 	private String brokerUrl;
@@ -55,6 +63,7 @@ public class TopicWebController {
 		}
 		Topic newTopic = dtoToTopic(topicDto);
 		topicService.insertNewTopic(newTopic);
+		addTopicToMqttReceiver(newTopic);
 		return "redirect:/";
 	}
 		
@@ -79,6 +88,13 @@ public class TopicWebController {
 
 	private Topic dtoToTopic(TopicDto topicDto) {
 		return new Topic(topicDto.getPath(), new ArrayList<>());
+	}
+	
+	private void addTopicToMqttReceiver(Topic newTopic) {
+		Message<String> operation = MessageBuilder
+				.withPayload("@mqttReceiver.addTopic('"+newTopic.getPath()+"', 2)")
+				.build();
+		commandChannel.send(operation);
 	}
 
 }
