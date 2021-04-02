@@ -117,11 +117,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>mongodb</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -135,6 +130,12 @@
 			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap</artifactId>
 			<version>3.4.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>de.bwaldvogel</groupId>
+			<artifactId>mongo-java-server</artifactId>
+			<version>1.37.0</version>
 		</dependency>
 	</dependencies>
 
@@ -289,22 +290,24 @@
 							</dependency>
 						</dependencies>
 						<configuration>
+							<verbose>true</verbose>
 							<targetClasses>
 								<param>edu.att4sd.*</param>
 							</targetClasses>
 							<excludedClasses>
 								<param>edu.att4sd.SensorReaderApplication</param>
 								<param>edu.att4sd.model.*</param>
+								<param>edu.att4sd.repositories.TopicRepository</param>
 							</excludedClasses>
 							<targetTests>
 								<param>edu.att4sd.*</param>
 							</targetTests>
 							<excludedTestClasses>
 								<param>edu.att4sd.SensorReaderApplicationTests*</param>
+								<param>edu.att4sd.repositories.*</param>
 							</excludedTestClasses>
 							<mutators>
 								<mutator>DEFAULTS</mutator>
-								<mutator>NON_VOID_METHOD_CALLS</mutator>
 							</mutators>
 							<mutationThreshold>80</mutationThreshold>
 						</configuration>
