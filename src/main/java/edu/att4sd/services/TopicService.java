@@ -35,12 +35,22 @@ public class TopicService {
 				.orElse(repository.save(topic));
 	}
 
-	public void removeTopic(Topic toRemove) {
-		repository.delete(toRemove);
+	public boolean removeTopic(Topic toRemove) {
+		try {
+			repository.delete(toRemove);			
+		}catch (IllegalArgumentException e) {
+			return false;
+		}
+		return true;
 	}
 	
-	public void removeTopicById(String id) {
-		repository.deleteById(id);
+	public boolean removeTopicById(String id) {
+		try {
+			repository.deleteById(id);			
+		}catch (IllegalArgumentException e) {
+			return false;
+		}
+		return true;
 	}
 
 	public void addTelemetryValue(String topicPath, TelemetryValue newValue) {
