@@ -52,6 +52,7 @@ class MqttMessageHandlerTest {
 		assertThat(topicCaptor.getAllValues()).containsExactly(TEST_TOPIC);
 		assertThat(telemetryCaptor.getAllValues()).hasSize(1);
 		TelemetryValue captured = telemetryCaptor.getValue();
+		assertThat(captured.getTimestamp()).isNotNull();
 		assertThat(captured.getValue()).isEqualTo(TEST_VALUE);
 	}
 
