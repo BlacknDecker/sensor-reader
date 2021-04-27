@@ -20,9 +20,15 @@ public class TopicService {
 	}
 	
 	public Topic getTopicByPath(String path) {
-		return repository.findByPath(path).orElse(null);
+		return repository.findByPath(path)
+				.orElseThrow(() -> new IllegalArgumentException("Topic not found!"));
 	}
-
+	
+	public Topic getTopicById(String id) {
+		return repository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Topic not found!"));
+	}
+	
 	public Topic insertNewTopic(Topic topic) {
 		topic.getTelemetry().clear();
 		return repository.findByPath(topic.getPath())
@@ -32,10 +38,14 @@ public class TopicService {
 	public void removeTopic(Topic toRemove) {
 		repository.delete(toRemove);
 	}
+	
+	public void removeTopicById(String id) {
+		repository.deleteById(id);
+	}
 
 	public void addTelemetryValue(String topicPath, TelemetryValue newValue) {
 		Topic toUpdate = repository.findByPath(topicPath)
-							.orElseThrow(() -> new IllegalStateException("Topic not found!"));
+							.orElseThrow(() -> new IllegalArgumentException("Topic not found!"));
 		toUpdate.getTelemetry().add(newValue);
 		repository.save(toUpdate);	
 	}

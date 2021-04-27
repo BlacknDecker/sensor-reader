@@ -7,17 +7,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -43,6 +40,7 @@ class TopicServiceTest {
 	@InjectMocks
 	private TopicService topicService;
 
+	private static final String TOPIC_ID = "qwerty";
 	private static final String TOPIC_PATH = "test/1";
 	private static final String VALUE1 = "12";
 	private static final String VALUE2 = "34";
@@ -54,7 +52,7 @@ class TopicServiceTest {
 		when(repository.findAll()).thenReturn(new ArrayList<>());
 		assertThat(topicService.getAllTopics()).isEmpty();
 	}
-	
+
 	@Test
 	void testGetAllTopics() {
 		Topic topic1 = createTestTopic(TOPIC_PATH, VALUE1, VALUE2);
@@ -71,11 +69,24 @@ class TopicServiceTest {
 	}
 
 	@Test
-	void testGetTopicByPathWhenNotFound() {
+	void testGetTopicByPathWhenNotFoundShouldThrow() {
 		when(repository.findByPath(anyString())).thenReturn(Optional.empty());
-		assertThat(topicService.getTopicByPath("test")).isNull();
+		assertThrows(IllegalArgumentException.class, () -> topicService.getTopicByPath("test"));
 	}
-	
+
+	@Test
+	void testGetTopicByIdWhenFound() {
+		Topic topic = createTestTopic(TOPIC_PATH, VALUE1, VALUE2);
+		when(repository.findById(TOPIC_ID)).thenReturn(Optional.of(topic));
+		assertThat(topicService.getTopicById(TOPIC_ID)).isSameAs(topic);
+	}
+
+	@Test
+	void testGetTopicByIdWhenNotFoundShouldThrow() {
+		when(repository.findById(anyString())).thenReturn(Optional.empty());
+		assertThrows(IllegalArgumentException.class, () -> topicService.getTopicById("test"));
+	}
+
 	@Test
 	void testInsertNewTopicWhenNotExists() {
 		Topic toSave = spy(createTestTopic(TOPIC_PATH));
@@ -95,12 +106,12 @@ class TopicServiceTest {
 	void testInsertNewTopicShouldClearTelemetryOnInsert() {
 		Topic toSave = spy(createTestTopic(TOPIC_PATH, VALUE1, VALUE2));
 		assertThat(toSave.getTelemetry()).hasSize(2);
-		
+
 		Topic saved = createTestTopic(TOPIC_PATH);
 		when(repository.save(any(Topic.class))).thenReturn(saved);
-		
+
 		Topic inserted = topicService.insertNewTopic(toSave);
-		
+
 		assertThat(inserted).isSameAs(saved);
 		verify(repository).save(toSave);
 		assertThat(toSave.getTelemetry()).isEmpty();
@@ -111,31 +122,47 @@ class TopicServiceTest {
 		Topic toSave = spy(createTestTopic(TOPIC_PATH));
 		Topic saved = createTestTopic(TOPIC_PATH, VALUE1, VALUE2);
 		when(repository.findByPath(TOPIC_PATH)).thenReturn(Optional.of(saved));
-		
+
 		Topic inserted = topicService.insertNewTopic(toSave);
-		
+
 		assertThat(inserted).isSameAs(saved);
 		assertThat(inserted.getTelemetry()).hasSize(2);
 	}
-	
+
 	@Test
 	void testRemoveTopicWhenTopicExists() {
 		Topic toRemove = createTestTopic(TOPIC_PATH, VALUE1);
 		doNothing().when(repository).delete(toRemove);
-		
+
 		topicService.removeTopic(toRemove);
-		
+
 		verify(repository).delete(toRemove);
 	}
-	
+
 	@Test
-	void testRemoveTopicWhenTopicNotExists() {
+	void testRemoveTopicWhenTopicNotExistsShouldThrow() {
 		Topic notToRemove = createTestTopic(TOPIC_PATH, VALUE1);
-		doThrow(new IllegalStateException()).when(repository).delete(notToRemove);
-		
-		assertThrows(IllegalStateException.class, () -> topicService.removeTopic(notToRemove));		
+		doThrow(new IllegalArgumentException()).when(repository).delete(notToRemove);
+
+		assertThrows(IllegalArgumentException.class, () -> topicService.removeTopic(notToRemove));
 	}
-	
+
+	@Test
+	void testRemoveTopicByIdWhenTopicExists() {
+		doNothing().when(repository).deleteById(any(String.class));
+
+		topicService.removeTopicById(TOPIC_ID);
+
+		verify(repository).deleteById(TOPIC_ID);
+	}
+
+	@Test
+	void testRemoveTopicByIdWhenTopicNotExistsShouldThrow() {
+		doThrow(new IllegalArgumentException()).when(repository).deleteById(TOPIC_ID);
+
+		assertThrows(IllegalArgumentException.class, () -> topicService.removeTopicById(TOPIC_ID));
+	}
+
 	@Test
 	void testAddTelemetryValueWhenTopicFound() {
 		TelemetryValue newValue = new TelemetryValue(getTimestamp(), VALUE1);
@@ -144,29 +171,27 @@ class TopicServiceTest {
 		updated.getTelemetry().add(newValue);
 		when(repository.findByPath(TOPIC_PATH)).thenReturn(Optional.of(emptyTopic));
 		when(repository.save(any(Topic.class))).thenReturn(updated);
-		
+
 		topicService.addTelemetryValue(TOPIC_PATH, newValue);
-		
+
 		InOrder inOrder = Mockito.inOrder(repository);
 		inOrder.verify(repository).findByPath(TOPIC_PATH);
 		inOrder.verify(repository).save(updated);
 	}
-	
+
 	@Test
 	void testAddTelemetryValueWhenTopicNotFoundShouldThrow() {
 		TelemetryValue newValue = new TelemetryValue(getTimestamp(), VALUE1);
 		when(repository.findByPath(TOPIC_PATH)).thenReturn(Optional.empty());
-		
-		assertThrows(IllegalStateException.class, 
-						() -> topicService.addTelemetryValue(TOPIC_PATH, newValue));
+
+		assertThrows(IllegalArgumentException.class, () -> topicService.addTelemetryValue(TOPIC_PATH, newValue));
 	}
 
 	/* Utils */
 
 	private Topic createTestTopic(String path, String... values) {
 		Topic testTopic = new Topic(path, new ArrayList<>());
-		Arrays.stream(values).forEach(value -> testTopic.getTelemetry()
-													.add(new TelemetryValue(getTimestamp(), value)));
+		Arrays.stream(values).forEach(value -> testTopic.getTelemetry().add(new TelemetryValue(getTimestamp(), value)));
 		return testTopic;
 	}
 
