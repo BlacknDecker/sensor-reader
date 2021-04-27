@@ -300,7 +300,7 @@
 							<excludes>
 								<exclude>**/*Application.*</exclude>
 								<exclude>**/model/*</exclude>
-								<exclude>**/MqttControllerConfig.*</exclude>
+								<exclude>**/*Config.*</exclude>
 							</excludes>
 						</configuration>
 						<executions>
