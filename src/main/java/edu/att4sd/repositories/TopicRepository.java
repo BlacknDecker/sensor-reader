@@ -19,6 +19,10 @@ public class TopicRepository {
 	public Optional<Topic> findByPath(String path){
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
 	}
+	
+	public Optional<Topic> findById(String id){
+		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
+	}
 
 	public Topic save(Topic topic) {
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
@@ -27,5 +31,9 @@ public class TopicRepository {
 	public void delete(Topic toRemove) {
 		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
 	}
-
+	
+	public void deleteById(String id) {
+		throw new UnsupportedOperationException(TEMPORARY_IMPLEMENTATION);
+	}
+	
 }
