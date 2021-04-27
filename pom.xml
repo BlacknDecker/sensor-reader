@@ -16,7 +16,7 @@
 	<description>Project for the ATT4SD course</description>
 	<properties>
 		<java.version>1.8</java.version>
-		<skip.unit-tests>true</skip.unit-tests>
+		<skip.unit-tests>false</skip.unit-tests>
 		<skip.integration-tests>false</skip.integration-tests>
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
@@ -144,12 +144,6 @@
 		<dependency>
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.awaitility</groupId>
-			<artifactId>awaitility-proxy</artifactId>
-			<version>3.1.6</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -362,7 +356,7 @@
 								<param>edu.att4sd.SensorReaderApplication</param>
 								<param>edu.att4sd.model.*</param>
 								<param>edu.att4sd.repositories.TopicRepository</param>
-                                <param>edu.att4sd.controller.mqtt.*Config*</param>
+								<param>edu.att4sd.controller.mqtt.*Config*</param>
 								<param>edu.att4sd.controller.mqtt.MqttReceiver</param>
 							</excludedClasses>
 							<targetTests>
@@ -370,7 +364,7 @@
 							</targetTests>
 							<excludedTestClasses>
 								<param>edu.att4sd.repositories.*</param>
-                                <param>edu.att4sd.controller.mqtt.MqttReceiverTest</param>
+								<param>edu.att4sd.controller.mqtt.MqttReceiverTest</param>
 								<param>edu.att4sd.it.*</param>
 							</excludedTestClasses>
 							<mutators>
@@ -395,6 +389,3 @@
 	</profiles>
 
 </project>
-
-
-		
