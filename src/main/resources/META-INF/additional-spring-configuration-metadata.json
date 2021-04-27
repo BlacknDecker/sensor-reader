@@ -1,5 +1,14 @@
-{"properties": [{
-  "name": "spring.data.mongodb.topic_collection",
-  "type": "java.lang.String",
-  "description": "The 'Topic' Collection name"
-}]}
+{
+    "properties": [
+        {
+            "name": "spring.data.mongodb.topic_collection",
+            "type": "java.lang.String",
+            "description": "The 'Topic' Collection name"
+        },
+        {
+            "name": "broker",
+            "type": "java.lang.String",
+            "description": "the MQTT Broker URI"
+        }
+    ]
+}

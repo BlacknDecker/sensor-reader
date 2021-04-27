@@ -16,7 +16,7 @@
 	<description>Project for the ATT4SD course</description>
 	<properties>
 		<java.version>1.8</java.version>
-		<skip.unit-tests>false</skip.unit-tests>
+		<skip.unit-tests>true</skip.unit-tests>
 		<skip.integration-tests>false</skip.integration-tests>
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
@@ -32,7 +32,8 @@
 			${project.reporting.outputDirectory}/jacoco/jacoco.xml
 		</sonar.coverage.jacoco.xmlReportPaths>
 		<sonar.junit.reportPaths>
-			${project.build.directory}/surefire-reports
+			${project.build.directory}/surefire-reports,
+			${project.build.directory}/failsafe-reports
 		</sonar.junit.reportPaths>
 		<sonar.sources>
 			pom.xml,
@@ -40,11 +41,13 @@
 			${basedir}/src/main/resources
 		</sonar.sources>
 		<sonar.tests>
-			${project.build.testSourceDirectory}
+			${project.build.testSourceDirectory},
+			${basedir}/src/it/java
 		</sonar.tests>
 		<sonar.coverage.exclusions>
 			**/model/*,
-			**/*Application.*
+			**/*Application.*,
+			**/MqttControllerConfig.*
 		</sonar.coverage.exclusions>
 	</properties>
 
@@ -137,6 +140,18 @@
 			<artifactId>mongo-java-server</artifactId>
 			<version>1.37.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility-proxy</artifactId>
+			<version>3.1.6</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 
@@ -188,6 +203,7 @@
 							<includes>
 								<include>**/*IT.java</include>
 							</includes>
+							<classesDirectory>${project.build.outputDirectory}</classesDirectory>
 						</configuration>
 						<goals>
 							<goal>integration-test</goal>
@@ -202,6 +218,8 @@
 				<artifactId>docker-maven-plugin</artifactId>
 				<version>0.27.2</version>
 				<configuration>
+					<logStdout>true</logStdout>
+					<verbose>true</verbose>
 					<images>
 						<image>
 							<name>mongo:4.2.3</name>
@@ -209,6 +227,17 @@
 								<ports>
 									<port>27017:27017</port>
 								</ports>
+							</run>
+						</image>
+						<image>
+							<name>eclipse-mosquitto:2.0.7</name>
+							<run>
+								<ports>
+									<port>1883:1883</port>
+								</ports>
+								<volumes>
+									<bind>${basedir}/src/test/resources/mosquitto.conf:/mosquitto/config/mosquitto.conf</bind>
+								</volumes>
 							</run>
 						</image>
 					</images>
@@ -277,6 +306,7 @@
 							<excludes>
 								<exclude>**/*Application.*</exclude>
 								<exclude>**/model/*</exclude>
+								<exclude>**/MqttControllerConfig.*</exclude>
 							</excludes>
 						</configuration>
 						<executions>
@@ -332,12 +362,15 @@
 								<param>edu.att4sd.SensorReaderApplication</param>
 								<param>edu.att4sd.model.*</param>
 								<param>edu.att4sd.repositories.TopicRepository</param>
+                                <param>edu.att4sd.controller.mqtt.*Config*</param>
+								<param>edu.att4sd.controller.mqtt.MqttReceiver</param>
 							</excludedClasses>
 							<targetTests>
 								<param>edu.att4sd.*</param>
 							</targetTests>
 							<excludedTestClasses>
 								<param>edu.att4sd.repositories.*</param>
+                                <param>edu.att4sd.controller.mqtt.MqttReceiverTest</param>
 								<param>edu.att4sd.it.*</param>
 							</excludedTestClasses>
 							<mutators>
@@ -362,3 +395,6 @@
 	</profiles>
 
 </project>
+
+
+		
