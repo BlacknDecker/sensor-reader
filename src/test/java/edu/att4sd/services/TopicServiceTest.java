@@ -134,17 +134,20 @@ class TopicServiceTest {
 		Topic toRemove = createTestTopic(TOPIC_PATH, VALUE1);
 		doNothing().when(repository).delete(toRemove);
 
-		topicService.removeTopic(toRemove);
+		boolean result = topicService.removeTopic(toRemove);
 
 		verify(repository).delete(toRemove);
+		assertThat(result).isTrue();
 	}
 
 	@Test
-	void testRemoveTopicWhenTopicNotExistsShouldThrow() {
+	void testRemoveTopicWhenTopicNotExists() {
 		Topic notToRemove = createTestTopic(TOPIC_PATH, VALUE1);
 		doThrow(new IllegalArgumentException()).when(repository).delete(notToRemove);
-
-		assertThrows(IllegalArgumentException.class, () -> topicService.removeTopic(notToRemove));
+		
+		boolean result = topicService.removeTopic(notToRemove);
+		
+		assertThat(result).isFalse();
 	}
 
 	@Test
@@ -157,10 +160,12 @@ class TopicServiceTest {
 	}
 
 	@Test
-	void testRemoveTopicByIdWhenTopicNotExistsShouldThrow() {
+	void testRemoveTopicByIdWhenTopicNotExists() {
 		doThrow(new IllegalArgumentException()).when(repository).deleteById(TOPIC_ID);
-
-		assertThrows(IllegalArgumentException.class, () -> topicService.removeTopicById(TOPIC_ID));
+		
+		boolean result = topicService.removeTopicById(TOPIC_ID);
+		
+		assertThat(result).isFalse();
 	}
 
 	@Test
