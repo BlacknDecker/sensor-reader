@@ -17,7 +17,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<skip.unit-tests>false</skip.unit-tests>
-		<skip.integration-tests>false</skip.integration-tests>
+		<skip.integration-tests>true</skip.integration-tests>
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
 		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
@@ -121,6 +121,12 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>net.sourceforge.htmlunit</groupId>
+			<artifactId>htmlunit</artifactId>
 			<scope>test</scope>
 		</dependency>
 

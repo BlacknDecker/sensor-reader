@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Topics</title>
+</head>
+<body>
+	<div>
+		<h1>Topic</h1>
+		<p id="topic_path">
+			<span>Path:</span> <span th:text="${topic.path}"></span>
+		</p>
+		<a th:href="@{/}">Home</a>
+	</div>
+	<!-- IF NO TELEMETRY -->
+	<div th:if="${topic.telemetry.empty}">
+		<p th:text="${message}"></p>
+	</div>
+	<!-- ELSE -->
+	<div th:unless="${topic.telemetry.empty}">
+		<h3>Telemetry</h3>
+		<table id="telemetry_table" aria-label="telemetry table">
+			<thead>
+				<tr>
+					<th id="timestamp">Timestamp</th>
+					<th id="value">Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="t_value : ${topic.telemetry}">
+					<td th:text="${t_value.timestamp}"></td>
+					<td th:text="${t_value.value}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
