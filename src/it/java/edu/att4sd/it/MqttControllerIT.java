@@ -41,7 +41,7 @@ import edu.att4sd.repositories.TopicRepository;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class MqttControllerIT {
+class MqttControllerIT {
 	
 	@Autowired
 	private TopicRepository topicRepository;
@@ -110,8 +110,9 @@ public class MqttControllerIT {
 		disconnectReceiver();
 		// Verify
 		List<TelemetryValue> saved = topicRepository.findByPath(TEST_TOPIC).get().getTelemetry();
-		assertThat(saved).hasSize(1);
-		assertThat(saved).first().hasFieldOrPropertyWithValue("value", TEST_VALUE);
+		assertThat(saved)
+					.hasSize(1)
+					.first().hasFieldOrPropertyWithValue("value", TEST_VALUE);
 	}
 	
 	@Test

@@ -30,7 +30,7 @@ public class MqttMessageHandler implements MessageHandler{
 			// The default value should never be used, since we already tested the header presence
 			String topic = message.getHeaders().getOrDefault(TOPIC_HEADER, "").toString();
 			TelemetryValue telemetryValue = telemetryOpt.get();
-			logger.debug("[" + topic + "] - " + telemetryValue.toString());
+			logger.debug("[{}] - {}", topic, telemetryValue.toString());
 			service.addTelemetryValue(topic, telemetryValue);
 		}
 	}
