@@ -47,7 +47,7 @@
 		<sonar.coverage.exclusions>
 			**/model/*,
 			**/*Application.*,
-			**/MqttControllerConfig.*
+			**/*Config.*
 		</sonar.coverage.exclusions>
 	</properties>
 
