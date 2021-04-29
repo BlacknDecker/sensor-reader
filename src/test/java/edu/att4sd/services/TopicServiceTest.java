@@ -154,9 +154,10 @@ class TopicServiceTest {
 	void testRemoveTopicByIdWhenTopicExists() {
 		doNothing().when(repository).deleteById(any(String.class));
 
-		topicService.removeTopicById(TOPIC_ID);
+		boolean result = topicService.removeTopicById(TOPIC_ID);
 
 		verify(repository).deleteById(TOPIC_ID);
+		assertThat(result).isTrue();
 	}
 
 	@Test
