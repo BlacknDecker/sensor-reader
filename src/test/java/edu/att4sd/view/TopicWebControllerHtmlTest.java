@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -42,6 +43,9 @@ class TopicWebControllerHtmlTest {
 	
 	@MockBean
 	private TopicService topicService;
+	
+	@MockBean(name="commandChannel")
+	private MessageChannel commandChannel;
 	
 	
 	/* HOMEPAGE */

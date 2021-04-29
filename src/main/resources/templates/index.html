@@ -28,7 +28,7 @@
 			<tbody>
 				<tr th:each="topic : ${topics}">
 					<td th:text="${topic.path}"></td>
-					<td><a th:href="@{'/edit/' + ${topic.id}}">Show</a></td>
+					<td><a th:href="@{'/show/' + ${topic.id}}">Show</a></td>
 					<td><a th:href="@{'/delete/' + ${topic.id}}">Delete</a></td>
 				</tr>
 			</tbody>
