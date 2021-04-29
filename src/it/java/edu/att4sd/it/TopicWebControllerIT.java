@@ -35,7 +35,7 @@ import edu.att4sd.repositories.TopicRepository;
 @ExtendWith(SpringExtension.class)
 @TestInstance(Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class TopicWebControllerIT {
+class TopicWebControllerIT {
 	
 	@Autowired
 	private TopicRepository topicRepository;

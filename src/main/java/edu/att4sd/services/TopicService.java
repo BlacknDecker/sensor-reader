@@ -11,6 +11,7 @@ import edu.att4sd.repositories.TopicRepository;
 
 @Service
 public class TopicService {
+	private static final String NOT_FOUND = "Topic not found!";
 	
 	@Autowired
 	private TopicRepository repository;
@@ -21,12 +22,12 @@ public class TopicService {
 	
 	public Topic getTopicByPath(String path) {
 		return repository.findByPath(path)
-				.orElseThrow(() -> new IllegalArgumentException("Topic not found!"));
+				.orElseThrow(() -> new IllegalArgumentException(NOT_FOUND));
 	}
 	
 	public Topic getTopicById(String id) {
 		return repository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Topic not found!"));
+				.orElseThrow(() -> new IllegalArgumentException(NOT_FOUND));
 	}
 	
 	public Topic insertNewTopic(Topic topic) {
@@ -55,7 +56,7 @@ public class TopicService {
 
 	public void addTelemetryValue(String topicPath, TelemetryValue newValue) {
 		Topic toUpdate = repository.findByPath(topicPath)
-							.orElseThrow(() -> new IllegalArgumentException("Topic not found!"));
+							.orElseThrow(() -> new IllegalArgumentException(NOT_FOUND));
 		toUpdate.getTelemetry().add(newValue);
 		repository.save(toUpdate);	
 	}
