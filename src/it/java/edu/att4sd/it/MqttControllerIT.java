@@ -34,7 +34,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import edu.att4sd.controller.mqtt.MqttReceiver;
-import edu.att4sd.it.utilities.MqttChannelInterceptor;
+import edu.att4sd.it.utilities.MessageCounterChannelInterceptor;
 import edu.att4sd.model.TelemetryValue;
 import edu.att4sd.model.Topic;
 import edu.att4sd.repositories.TopicRepository;
@@ -63,7 +63,7 @@ class MqttControllerIT {
 	private String brokerAddress;
 	
 	private Logger logger = LoggerFactory.getLogger(MqttControllerIT.class);
-	private static final MqttChannelInterceptor mqttChannelInterceptor = new MqttChannelInterceptor();
+	private static final MessageCounterChannelInterceptor mqttChannelInterceptor = new MessageCounterChannelInterceptor();
 	private static final String TOPIC_HEADER = MqttHeaders.RECEIVED_TOPIC; 
 	private static final String TEST_TOPIC = "/test/topic";
 	private static final String TEST_VALUE = "1.1";
