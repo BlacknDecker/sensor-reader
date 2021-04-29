@@ -88,9 +88,9 @@ class TopicWebControllerHtmlTest {
 					   "test/path1	Show	Delete\n" +
 					   "test/path2	Show	Delete"
 					   );
-		page.getAnchorByHref("/edit/abcd");
+		page.getAnchorByHref("/show/abcd");
 		page.getAnchorByHref("/delete/abcd");
-		page.getAnchorByHref("/edit/efgh");
+		page.getAnchorByHref("/show/efgh");
 		page.getAnchorByHref("/delete/efgh");
 	}
 	
