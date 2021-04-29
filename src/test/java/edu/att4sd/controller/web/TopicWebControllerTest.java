@@ -165,7 +165,7 @@ class TopicWebControllerTest {
 	
 	@Test
 	void testDeleteTopicView() throws Exception {
-		when(topicService.deleteTopicById(TOPIC_ID)).thenReturn(true);
+		when(topicService.removeTopicById(TOPIC_ID)).thenReturn(true);
 		
 		mvc.perform(get("/delete/qwerty"))
 			.andExpect(view().name("redirect:/"));
@@ -173,7 +173,7 @@ class TopicWebControllerTest {
 	
 	@Test
 	void testDeleteTopicViewWhenTopicNotFoundShouldThrow404() throws Exception {
-		when(topicService.deleteTopicById(TOPIC_ID)).thenReturn(false);
+		when(topicService.removeTopicById(TOPIC_ID)).thenReturn(false);
 		
 		mvc.perform(get("/delete/qwerty"))
 			.andExpect(status().is(404));

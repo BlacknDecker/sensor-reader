@@ -80,7 +80,7 @@ public class TopicWebController {
 	
 	@GetMapping("/delete/{id}")
 	public String deleteTopic(@PathVariable String id, Model model) {
-		if(topicService.deleteTopicById(id)) {
+		if(topicService.removeTopicById(id)) {
 			return "redirect:/";
 		}
 		throw new TopicNotFoundViewException(); 
