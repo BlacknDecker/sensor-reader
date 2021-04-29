@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Topics</title>
+</head>
+<body>
+	<div>
+		<p id="broker_info">
+			<span>Broker:</span> <span th:text="${broker}"></span> 
+		</p>
+	</div>
+	<div>
+		<a th:href="@{/new}">Add Topic</a>
+	</div>
+	<!-- IF NO TOPICS -->
+	<div th:if="${topics.empty}">
+		<div>No topics</div>
+	</div>
+	<!-- ELSE -->
+	<div th:unless="${topics.empty}">
+		<table id="topics_table" aria-label="topics table">
+			<thead>
+				<tr>
+					<th scope="col">Topics</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="topic : ${topics}">
+					<td th:text="${topic.path}"></td>
+					<td><a th:href="@{'/show/' + ${topic.id}}">Show</a></td>
+					<td><a th:href="@{'/delete/' + ${topic.id}}">Delete</a></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

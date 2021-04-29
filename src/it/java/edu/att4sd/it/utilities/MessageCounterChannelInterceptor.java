@@ -8,9 +8,9 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.ChannelInterceptor;
 
-public class MqttChannelInterceptor implements ChannelInterceptor {
+public class MessageCounterChannelInterceptor implements ChannelInterceptor {
 	public final AtomicInteger sendCount = new AtomicInteger();
-	private Logger logger = LoggerFactory.getLogger(MqttChannelInterceptor.class);
+	private Logger logger = LoggerFactory.getLogger(MessageCounterChannelInterceptor.class);
 	
 	@Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {

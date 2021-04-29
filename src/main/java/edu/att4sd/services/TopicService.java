@@ -11,6 +11,7 @@ import edu.att4sd.repositories.TopicRepository;
 
 @Service
 public class TopicService {
+	private static final String NOT_FOUND = "Topic not found!";
 	
 	@Autowired
 	private TopicRepository repository;
@@ -20,22 +21,42 @@ public class TopicService {
 	}
 	
 	public Topic getTopicByPath(String path) {
-		return repository.findByPath(path).orElse(null);
+		return repository.findByPath(path)
+				.orElseThrow(() -> new IllegalArgumentException(NOT_FOUND));
 	}
-
+	
+	public Topic getTopicById(String id) {
+		return repository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException(NOT_FOUND));
+	}
+	
 	public Topic insertNewTopic(Topic topic) {
 		topic.getTelemetry().clear();
 		return repository.findByPath(topic.getPath())
 				.orElse(repository.save(topic));
 	}
 
-	public void removeTopic(Topic toRemove) {
-		repository.delete(toRemove);
+	public boolean removeTopic(Topic toRemove) {
+		try {
+			repository.delete(toRemove);			
+		}catch (IllegalArgumentException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean removeTopicById(String id) {
+		try {
+			repository.deleteById(id);			
+		}catch (IllegalArgumentException e) {
+			return false;
+		}
+		return true;
 	}
 
 	public void addTelemetryValue(String topicPath, TelemetryValue newValue) {
 		Topic toUpdate = repository.findByPath(topicPath)
-							.orElseThrow(() -> new IllegalStateException("Topic not found!"));
+							.orElseThrow(() -> new IllegalArgumentException(NOT_FOUND));
 		toUpdate.getTelemetry().add(newValue);
 		repository.save(toUpdate);	
 	}
