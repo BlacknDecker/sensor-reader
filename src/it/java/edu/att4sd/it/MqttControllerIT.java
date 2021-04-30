@@ -65,7 +65,7 @@ class MqttControllerIT {
 	private Logger logger = LoggerFactory.getLogger(MqttControllerIT.class);
 	private static final MessageCounterChannelInterceptor mqttChannelInterceptor = new MessageCounterChannelInterceptor();
 	private static final String TOPIC_HEADER = MqttHeaders.RECEIVED_TOPIC; 
-	private static final String TEST_TOPIC = "/test/topic";
+	private static final String TEST_TOPIC_PATH = "/test/path";
 	private static final String TEST_VALUE = "1.1";
 		
 	
@@ -80,7 +80,7 @@ class MqttControllerIT {
 		mqttChannelInterceptor.resetCount();
 		// Repository
 		topicRepository.deleteAll();
-		topicRepository.save(new Topic(TEST_TOPIC, new ArrayList<>()));
+		topicRepository.save(new Topic(TEST_TOPIC_PATH, new ArrayList<>()));
 	}
 	
 	
@@ -88,13 +88,13 @@ class MqttControllerIT {
 	void testMessageHandlerSavesReceivedTelemetry() {
 		// Create message
 		Message<?> message = MessageBuilder.withPayload(TEST_VALUE)
-				   				.setHeader(TOPIC_HEADER, TEST_TOPIC)
+				   				.setHeader(TOPIC_HEADER, TEST_TOPIC_PATH)
 				   				.build();
 		// Send message
 		mqttChannel.send(message);
 		// Verify
-		await().atMost(3, SECONDS).until(topicTelemetrySize(TEST_TOPIC), equalTo(1));
-		List<TelemetryValue> saved = topicRepository.findByPath(TEST_TOPIC).get().getTelemetry();
+		await().atMost(3, SECONDS).until(topicTelemetrySize(TEST_TOPIC_PATH), equalTo(1));
+		List<TelemetryValue> saved = topicRepository.findByPath(TEST_TOPIC_PATH).get().getTelemetry();
 		assertThat(saved).first().hasFieldOrPropertyWithValue("value", TEST_VALUE);
 		assertThat(mqttChannelInterceptor.sendCount.get()).isEqualTo(1);
 	}
@@ -104,12 +104,12 @@ class MqttControllerIT {
 	void testMqttControllerSavesTelemetry() {
 		connectReceiver();
 		
-		sendTestTelemetry(TEST_TOPIC, TEST_VALUE);
+		sendTestTelemetry(TEST_TOPIC_PATH, TEST_VALUE);
 		
-		await().atMost(10, SECONDS).until(topicTelemetrySize(TEST_TOPIC), not(equalTo(0)));
+		await().atMost(10, SECONDS).until(topicTelemetrySize(TEST_TOPIC_PATH), not(equalTo(0)));
 		disconnectReceiver();
 		// Verify
-		List<TelemetryValue> saved = topicRepository.findByPath(TEST_TOPIC).get().getTelemetry();
+		List<TelemetryValue> saved = topicRepository.findByPath(TEST_TOPIC_PATH).get().getTelemetry();
 		assertThat(saved)
 					.hasSize(1)
 					.first().hasFieldOrPropertyWithValue("value", TEST_VALUE);
@@ -123,9 +123,9 @@ class MqttControllerIT {
 		IntStream.iterate(0, i -> i+1)
 				 .limit(telemetry_size)
 				 .boxed()
-				 .forEach(n -> sendTestTelemetry(TEST_TOPIC, "1."+n));
+				 .forEach(n -> sendTestTelemetry(TEST_TOPIC_PATH, "1."+n));
 				
-		await().atMost(10, SECONDS).until(topicTelemetrySize(TEST_TOPIC), equalTo(telemetry_size));
+		await().atMost(10, SECONDS).until(topicTelemetrySize(TEST_TOPIC_PATH), equalTo(telemetry_size));
 		disconnectReceiver();		
 	}
 	
@@ -152,16 +152,18 @@ class MqttControllerIT {
 	}
 		
 	private void connectReceiver() {
-		mqttReceiver.addTopic(TEST_TOPIC, 0);
-		assertThat(mqttReceiver.getTopic()).hasSize(1);
-		assertThat(Arrays.stream(mqttReceiver.getTopic())).first().isEqualTo(TEST_TOPIC);
+		mqttReceiver.addTopic(TEST_TOPIC_PATH, 0);
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 TEST_TOPIC_PATH);	
 		mqttReceiver.start();
 	}
 		
 	private void disconnectReceiver() {
 		mqttReceiver.stop();
-		mqttReceiver.removeTopic(TEST_TOPIC);
-		assertThat(mqttReceiver.getTopic()).isEmpty();
+		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic());
 	}
 	
 }

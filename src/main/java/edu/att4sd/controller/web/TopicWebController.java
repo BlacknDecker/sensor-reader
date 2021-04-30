@@ -92,7 +92,7 @@ public class TopicWebController {
 	
 	private void addTopicToMqttReceiver(Topic newTopic) {
 		Message<String> operation = MessageBuilder
-				.withPayload("@mqttReceiver.addTopic('"+newTopic.getPath()+"', 2)")
+				.withPayload("@mqttReceiver.addTopicIgnoreDuplicates('"+newTopic.getPath()+"', 2)")
 				.build();
 		commandChannel.send(operation);
 	}

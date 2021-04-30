@@ -42,6 +42,7 @@ class ControlBusIT {
 	@LocalServerPort
 	private int port;
 	
+	private static final String TEST_TOPIC_PATH = "/test/path";
 	private Logger logger = LoggerFactory.getLogger(ControlBusIT.class);
 	private WebDriver driver;
 	private String baseUrl;
@@ -62,28 +63,54 @@ class ControlBusIT {
 		// always start with an empty database
 		topicRepository.deleteAll();
 		// check subscribed topics
-		assertThat(mqttReceiver.getTopic()).isEmpty();
+		if(mqttReceiver.getTopic().length > 1) {
+			String defaultTopic = mqttReceiver.getDefaultTopic();
+			Arrays.stream(mqttReceiver.getTopic())
+				  .filter((topicPath) -> topicPath!=defaultTopic)
+				  .forEach((topicPath) -> mqttReceiver.removeTopic(topicPath));
+		}
+		assertThat(mqttReceiver.getTopic()).containsExactly(mqttReceiver.getDefaultTopic());
 	}
 	
 	@Test
 	void testWhenNewTopicIsAddedFromWebpageMqttReceiverShouldSubscribe() {
 		// Add new topic from webpage
 		driver.get(baseUrl + "/new");
-		driver.findElement(By.name("path")).sendKeys("test/path");
+		driver.findElement(By.name("path")).sendKeys(TEST_TOPIC_PATH);
 		driver.findElement(By.name("submit_button")).click();
 		
 		// Verify the receiver is now subscribed to that topic
 		await().atMost(3, SECONDS).until(mqttReceiverHasSubscribedToATopic());
-		assertThat(mqttReceiver.getTopic()).hasSize(1);
-		assertThat(Arrays.stream(mqttReceiver.getTopic())).first().isEqualTo("test/path");
-		
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 TEST_TOPIC_PATH);		
 		// Cleanup subscriptions
-		mqttReceiver.removeTopic("test/path");
-		assertThat(mqttReceiver.getTopic()).isEmpty();
+		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
+	}
+	
+	@Test
+	void testDuplicateTopic() {
+		// Add new topic from webpage
+		driver.get(baseUrl + "/new");
+		driver.findElement(By.name("path")).sendKeys(TEST_TOPIC_PATH);
+		driver.findElement(By.name("submit_button")).click();
+				
+		// Add duplicate topic
+		driver.get(baseUrl + "/new");
+		driver.findElement(By.name("path")).sendKeys(TEST_TOPIC_PATH);
+		driver.findElement(By.name("submit_button")).click();
+		
+		// Verify the receiver is now subscribed to that topic
+		await().atMost(3, SECONDS).until(mqttReceiverHasSubscribedToATopic());
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 TEST_TOPIC_PATH);		
+		// Cleanup subscriptions
+		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
 	}
 	
 	private Callable<Boolean> mqttReceiverHasSubscribedToATopic(){
-		return () -> mqttReceiver.getTopic().length > 0;
+		return () -> mqttReceiver.getTopic().length > 1; // Default is always present
 	}
 	
 }
