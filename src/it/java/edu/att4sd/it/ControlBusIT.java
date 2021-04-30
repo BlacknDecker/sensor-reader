@@ -62,7 +62,7 @@ class ControlBusIT {
 		// always start with an empty database
 		topicRepository.deleteAll();
 		// check subscribed topics
-		assertThat(mqttReceiver.getTopic()).isEmpty();
+		assertThat(mqttReceiver.getTopic()).containsExactly(mqttReceiver.getDefaultTopic());
 	}
 	
 	@Test
@@ -74,12 +74,12 @@ class ControlBusIT {
 		
 		// Verify the receiver is now subscribed to that topic
 		await().atMost(3, SECONDS).until(mqttReceiverHasSubscribedToATopic());
-		assertThat(mqttReceiver.getTopic()).hasSize(1);
-		assertThat(Arrays.stream(mqttReceiver.getTopic())).first().isEqualTo("test/path");
-		
+		assertThat(mqttReceiver.getTopic()).hasSize(2);
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 "test/path");		
 		// Cleanup subscriptions
 		mqttReceiver.removeTopic("test/path");
-		assertThat(mqttReceiver.getTopic()).isEmpty();
 	}
 	
 	private Callable<Boolean> mqttReceiverHasSubscribedToATopic(){
