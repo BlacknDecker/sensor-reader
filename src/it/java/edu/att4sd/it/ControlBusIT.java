@@ -42,6 +42,7 @@ class ControlBusIT {
 	@LocalServerPort
 	private int port;
 	
+	private static final String TEST_TOPIC_PATH = "/test/path";
 	private Logger logger = LoggerFactory.getLogger(ControlBusIT.class);
 	private WebDriver driver;
 	private String baseUrl;
@@ -62,6 +63,9 @@ class ControlBusIT {
 		// always start with an empty database
 		topicRepository.deleteAll();
 		// check subscribed topics
+		if(mqttReceiver.getTopic().length > 1) {
+			mqttReceiver.removeTopic(TEST_TOPIC_PATH);
+		}
 		assertThat(mqttReceiver.getTopic()).containsExactly(mqttReceiver.getDefaultTopic());
 	}
 	
@@ -69,38 +73,37 @@ class ControlBusIT {
 	void testWhenNewTopicIsAddedFromWebpageMqttReceiverShouldSubscribe() {
 		// Add new topic from webpage
 		driver.get(baseUrl + "/new");
-		driver.findElement(By.name("path")).sendKeys("test/path");
+		driver.findElement(By.name("path")).sendKeys(TEST_TOPIC_PATH);
 		driver.findElement(By.name("submit_button")).click();
 		
 		// Verify the receiver is now subscribed to that topic
 		await().atMost(3, SECONDS).until(mqttReceiverHasSubscribedToATopic());
 		assertThat(Arrays.stream(mqttReceiver.getTopic()))
 			.containsExactly(mqttReceiver.getDefaultTopic(), 
-							 "test/path");		
+							 TEST_TOPIC_PATH);		
 		// Cleanup subscriptions
-		mqttReceiver.removeTopic("test/path");
+		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
 	}
 	
 	@Test
 	void testDuplicateTopic() {
-		String topicPath = "test/path";
 		// Add new topic from webpage
 		driver.get(baseUrl + "/new");
-		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("path")).sendKeys(TEST_TOPIC_PATH);
 		driver.findElement(By.name("submit_button")).click();
 				
 		// Add duplicate topic
 		driver.get(baseUrl + "/new");
-		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("path")).sendKeys(TEST_TOPIC_PATH);
 		driver.findElement(By.name("submit_button")).click();
 		
 		// Verify the receiver is now subscribed to that topic
 		await().atMost(3, SECONDS).until(mqttReceiverHasSubscribedToATopic());
 		assertThat(Arrays.stream(mqttReceiver.getTopic()))
 			.containsExactly(mqttReceiver.getDefaultTopic(), 
-							 topicPath);		
+							 TEST_TOPIC_PATH);		
 		// Cleanup subscriptions
-		mqttReceiver.removeTopic(topicPath);
+		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
 	}
 	
 	private Callable<Boolean> mqttReceiverHasSubscribedToATopic(){
