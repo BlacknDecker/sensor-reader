@@ -12,7 +12,6 @@ import java.util.Arrays;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +39,7 @@ import org.testcontainers.utility.DockerImageName;
 
 
 @ExtendWith(SpringExtension.class)
-@TestPropertySource(properties = {"mqtt_receiver.autostartup=false"})
+@TestPropertySource(properties = {"mqtt.receiver.autostartup=false"})
 @ContextConfiguration(classes = MqttReceiverConfig.class)
 @Testcontainers
 class MqttReceiverTest {
@@ -75,16 +74,11 @@ class MqttReceiverTest {
 	private static final String TEST_TELEMETRYVALUE = "1.1";
 		
 	@BeforeEach
-	void connectReceiver() {
-		mqttReceiver.addTopic(TEST_TOPIC_PATH, 2);
-		assertThat(mqttReceiver.getTopic()).hasSize(2);		// Default and TestTopic
-		assertThat(Arrays.stream(mqttReceiver.getTopic())).containsExactly(mqttReceiver.getDefaultTopic(), TEST_TOPIC_PATH);
-	}
-	
-	@AfterEach
-	void disconnectReceiver() {
-		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
-		assertThat(mqttReceiver.getTopic()).hasSize(1); 	// Default topic only
+	void setup() {
+		if(mqttReceiver.getTopic().length > 1) {
+			mqttReceiver.removeTopic(TEST_TOPIC_PATH);
+		}
+		assertThat(mqttReceiver.getTopic()).containsExactly(mqttReceiver.getDefaultTopic());
 	}
 	
 	@Test
@@ -100,12 +94,39 @@ class MqttReceiverTest {
 	}
 	
 	@Test
+	void testAddTopicIgnoreDuplicatesWhenTopicIsNew() {
+		mqttReceiver.addTopicIgnoreDuplicates(TEST_TOPIC_PATH, 0);
+		
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 TEST_TOPIC_PATH);
+	}
+	
+	@Test
+	void testAddTopicIgnoreDuplicatesWhenTopicIsAlreadySubscribed() {
+		mqttReceiver.addTopicIgnoreDuplicates(TEST_TOPIC_PATH, 0);
+		
+		mqttReceiver.addTopicIgnoreDuplicates(TEST_TOPIC_PATH, 2);
+		
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 TEST_TOPIC_PATH);
+		// Checks that the quality of service has been updated
+		assertThat(mqttReceiver.getQos()[1]).isEqualTo(2); 				
+	}
+		
+	@Test
 	void testMqttReceiverWhenReceiveShouldForwardOnOutputChannel() {
 		when(mqttReceiverOutputChannel.send(any(GenericMessage.class))).thenReturn(true);
-				
+		mqttReceiver.addTopic(TEST_TOPIC_PATH, 2);
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 TEST_TOPIC_PATH);
+		
 		mqttReceiver.start();
 		sendTestTelemetry(TEST_TOPIC_PATH, TEST_TELEMETRYVALUE);
 		mqttReceiver.stop();
+		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
 		
 		logger.info("BROKER LOG:\n"+mqttBroker.getLogs());
 		verify(mqttReceiverOutputChannel, times(1)).send(any(GenericMessage.class));
