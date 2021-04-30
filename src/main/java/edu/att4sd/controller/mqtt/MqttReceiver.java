@@ -2,6 +2,7 @@ package edu.att4sd.controller.mqtt;
 
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
+import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ public class MqttReceiver extends MqttPahoMessageDrivenChannelAdapter {
 	}
 	
 	// Add a topic eventually ignores duplicates
+	@ManagedOperation
 	public void addTopicIgnoreDuplicates(String topic, int qos) {
 		try {
 			super.addTopic(topic, qos);			

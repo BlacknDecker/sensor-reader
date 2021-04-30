@@ -110,7 +110,7 @@ class TopicWebControllerTest {
 	@Test
 	void testSaveNewTopic() throws Exception {
 		Message<String> toSend = MessageBuilder
-				.withPayload("@mqttReceiver.addTopic('" + TOPIC_PATH + "', 2)")
+				.withPayload("@mqttReceiver.addTopicIgnoreDuplicates('" + TOPIC_PATH + "', 2)")
 				.build();
 		when(commandChannel.send(toSend)).thenReturn(true);
 		

@@ -74,7 +74,6 @@ class ControlBusIT {
 		
 		// Verify the receiver is now subscribed to that topic
 		await().atMost(3, SECONDS).until(mqttReceiverHasSubscribedToATopic());
-		assertThat(mqttReceiver.getTopic()).hasSize(2);
 		assertThat(Arrays.stream(mqttReceiver.getTopic()))
 			.containsExactly(mqttReceiver.getDefaultTopic(), 
 							 "test/path");		
@@ -82,8 +81,30 @@ class ControlBusIT {
 		mqttReceiver.removeTopic("test/path");
 	}
 	
+	@Test
+	void testDuplicateTopic() {
+		String topicPath = "test/path";
+		// Add new topic from webpage
+		driver.get(baseUrl + "/new");
+		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("submit_button")).click();
+				
+		// Add duplicate topic
+		driver.get(baseUrl + "/new");
+		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("submit_button")).click();
+		
+		// Verify the receiver is now subscribed to that topic
+		await().atMost(3, SECONDS).until(mqttReceiverHasSubscribedToATopic());
+		assertThat(Arrays.stream(mqttReceiver.getTopic()))
+			.containsExactly(mqttReceiver.getDefaultTopic(), 
+							 topicPath);		
+		// Cleanup subscriptions
+		mqttReceiver.removeTopic(topicPath);
+	}
+	
 	private Callable<Boolean> mqttReceiverHasSubscribedToATopic(){
-		return () -> mqttReceiver.getTopic().length > 0;
+		return () -> mqttReceiver.getTopic().length > 1; // Default is always present
 	}
 	
 }
