@@ -29,6 +29,7 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
@@ -39,6 +40,7 @@ import org.testcontainers.utility.DockerImageName;
 
 
 @ExtendWith(SpringExtension.class)
+@TestPropertySource(properties = {"mqtt_receiver.autostartup=false"})
 @ContextConfiguration(classes = MqttReceiverConfig.class)
 @Testcontainers
 class MqttReceiverTest {
@@ -69,22 +71,20 @@ class MqttReceiverTest {
 	
 	private Logger logger = LoggerFactory.getLogger(MqttReceiverTest.class);
 	
-	private static final String TEST_TOPIC = "test/test";
-	private static final String TEST_TELEMETRYVALUE = "aTelemetryValue";
+	private static final String TEST_TOPIC_PATH = "test/path";
+	private static final String TEST_TELEMETRYVALUE = "1.1";
 		
 	@BeforeEach
 	void connectReceiver() {
-		mqttReceiver.addTopic(TEST_TOPIC, 0);
-		assertThat(mqttReceiver.getTopic()).hasSize(1);
-		assertThat(Arrays.stream(mqttReceiver.getTopic())).first().isEqualTo(TEST_TOPIC);
-		mqttReceiver.start();
+		mqttReceiver.addTopic(TEST_TOPIC_PATH, 2);
+		assertThat(mqttReceiver.getTopic()).hasSize(2);		// Default and TestTopic
+		assertThat(Arrays.stream(mqttReceiver.getTopic())).containsExactly(mqttReceiver.getDefaultTopic(), TEST_TOPIC_PATH);
 	}
 	
 	@AfterEach
 	void disconnectReceiver() {
-		mqttReceiver.stop();
-		mqttReceiver.removeTopic(TEST_TOPIC);
-		assertThat(mqttReceiver.getTopic()).isEmpty();
+		mqttReceiver.removeTopic(TEST_TOPIC_PATH);
+		assertThat(mqttReceiver.getTopic()).hasSize(1); 	// Default topic only
 	}
 	
 	@Test
@@ -96,18 +96,20 @@ class MqttReceiverTest {
 		assertThat(mqttReceiver.getConnectionInfo().isAutomaticReconnect()).isTrue();
 		assertThat(Arrays.stream(mqttReceiver.getConnectionInfo().getServerURIs()).findFirst().orElse("ERROR")).isEqualTo(brokerAddress);
 		// Mqtt configs
-		assertThat(mqttReceiver.isAutoStartup()).isFalse();
+		assertThat(mqttReceiver.isAutoStartup()).isFalse();  //Test only
 	}
 	
 	@Test
 	void testMqttReceiverWhenReceiveShouldForwardOnOutputChannel() {
 		when(mqttReceiverOutputChannel.send(any(GenericMessage.class))).thenReturn(true);
-		
-		sendTestTelemetry(TEST_TOPIC, TEST_TELEMETRYVALUE);
+				
+		mqttReceiver.start();
+		sendTestTelemetry(TEST_TOPIC_PATH, TEST_TELEMETRYVALUE);
+		mqttReceiver.stop();
 		
 		logger.info("BROKER LOG:\n"+mqttBroker.getLogs());
 		verify(mqttReceiverOutputChannel, times(1)).send(any(GenericMessage.class));
-		verify(mqttMessageConverter).toMessageBuilder(eq(TEST_TOPIC), any(MqttMessage.class));
+		verify(mqttMessageConverter).toMessageBuilder(eq(TEST_TOPIC_PATH), any(MqttMessage.class));
 	}
 	
 	private void sendTestTelemetry(String topic, String value) {

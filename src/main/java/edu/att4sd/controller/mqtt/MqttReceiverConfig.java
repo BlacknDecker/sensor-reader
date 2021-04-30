@@ -20,6 +20,9 @@ public class MqttReceiverConfig {
 	@Value("${broker:tcp://localhost}")
 	private String brokerUrl;
 	
+	@Value("${mqtt.receiver.autostartup}")
+	private boolean mqttReceiverAutostartup;
+	
 	@Bean
 	public MqttMessageConverter mqttMessageConverter() {
 		return new DefaultPahoMessageConverter();
@@ -48,7 +51,7 @@ public class MqttReceiverConfig {
     	MqttReceiver receiver = new MqttReceiver(mqttClientFactory(), "TelemetryReceiver");
         receiver.setConverter(mqttMessageConverter);
         receiver.setOutputChannel(outputChannel);
-        receiver.setAutoStartup(false);
+        receiver.setAutoStartup(mqttReceiverAutostartup);
         return receiver;
     }
 

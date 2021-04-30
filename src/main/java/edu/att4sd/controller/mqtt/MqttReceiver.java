@@ -6,11 +6,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MqttReceiver extends MqttPahoMessageDrivenChannelAdapter {
-	private static final String DUMMY_TOPIC = "dummy";
+	private static final String DEFAULT_TOPIC = "$dummy";
 	
 	public MqttReceiver(MqttPahoClientFactory clientFactory, String identifier) {
-		super(identifier, clientFactory, DUMMY_TOPIC);
-		this.removeTopic(DUMMY_TOPIC);
+		super(identifier, clientFactory, DEFAULT_TOPIC);
+	}
+	
+	public String getDefaultTopic() {
+		return DEFAULT_TOPIC;
 	}
 
 }
