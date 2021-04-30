@@ -70,7 +70,7 @@ class MqttReceiverTest {
 	
 	private Logger logger = LoggerFactory.getLogger(MqttReceiverTest.class);
 	
-	private static final String TEST_TOPIC_PATH = "test/path";
+	private static final String TEST_TOPIC_PATH = "/test/path";
 	private static final String TEST_TELEMETRYVALUE = "1.1";
 		
 	@BeforeEach

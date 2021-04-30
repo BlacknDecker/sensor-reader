@@ -64,7 +64,10 @@ class ControlBusIT {
 		topicRepository.deleteAll();
 		// check subscribed topics
 		if(mqttReceiver.getTopic().length > 1) {
-			mqttReceiver.removeTopic(TEST_TOPIC_PATH);
+			String defaultTopic = mqttReceiver.getDefaultTopic();
+			Arrays.stream(mqttReceiver.getTopic())
+				  .filter((topicPath) -> topicPath!=defaultTopic)
+				  .forEach((topicPath) -> mqttReceiver.removeTopic(topicPath));
 		}
 		assertThat(mqttReceiver.getTopic()).containsExactly(mqttReceiver.getDefaultTopic());
 	}
