@@ -105,7 +105,12 @@ public class TopicWebControllerE2E {
 		topicRow.get().findElement(By.cssSelector("a[href*='/delete/'")).click();
 		
 		// Verify topic is no more in the homepage table
-		assertThat(driver.findElement(By.id("topics_table")).getText()).doesNotContain(topicPath);
+		String rawPage = driver.getPageSource(); 
+		if(rawPage.contains("topics_table")) {	
+			assertThat(driver.findElement(By.id("topics_table")).getText()).doesNotContain(topicPath);
+		}else {	// If there are no other topics , check the message (there is no table)
+			assertThat(driver.findElement(By.id("no_topics")).getText()).contains("No topics");
+		}
 	}
 	
 	@Test
@@ -119,6 +124,11 @@ public class TopicWebControllerE2E {
 		driver.findElement(By.id("cancel_button")).click();
 		
 		// Verify that we are redirected on the homepage and the topic is not in the table
-		assertThat(driver.findElement(By.id("topics_table")).getText()).doesNotContain(topicPath);	
+		String rawPage = driver.getPageSource(); 
+		if(rawPage.contains("topics_table")) {	
+			assertThat(driver.findElement(By.id("topics_table")).getText()).doesNotContain(topicPath);
+		}else {	// If there are no other topics , check the message (there is no table)
+			assertThat(driver.findElement(By.id("no_topics")).getText()).contains("No topics");
+		}
 	}
 }
