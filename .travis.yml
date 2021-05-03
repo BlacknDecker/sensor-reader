@@ -6,6 +6,10 @@ cache:
     - $HOME/.m2
     - $HOME/.sonar/cache
 
+services:
+  - xvfb
+  - docker
+
 addons:
   sonarcloud:
     organization: "lores"
@@ -15,11 +19,15 @@ matrix:
     - jdk: openjdk8
       script: ./mvnw clean verify
       after_script: bash ./notify_build.sh
+    - jdk: openjdk11
+      script: ./mvnw clean verify -Pjacoco && ./mvnw coveralls:report sonar:sonar 
+      after_script: bash ./notify_build.sh
     - jdk: openjdk8
       if: type IN (pull_request)
       script: ./mvnw clean verify -Pmutation-tests
       after_script: bash ./notify_build.sh
-    - jdk: openjdk11
-      script: ./mvnw clean verify -Pjacoco && ./mvnw coveralls:report sonar:sonar 
+    - jdk: openjdk8
+      if: type IN (pull_request) OR branch IN (master)
+      script: ./mvnw clean verify -Pe2e-tests
       after_script: bash ./notify_build.sh
     
