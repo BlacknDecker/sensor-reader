@@ -18,12 +18,14 @@
 		<java.version>1.8</java.version>
 		<skip.unit-tests>false</skip.unit-tests>
 		<skip.integration-tests>false</skip.integration-tests>
+		
 		<testcontainers.version>1.15.1</testcontainers.version>
 		<jacoco.plugin.version>0.8.6</jacoco.plugin.version>
 		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
-		<pitest.plugin.version>1.6.3</pitest.plugin.version>
-
 		<sonar.plugin.version>3.7.0.1746</sonar.plugin.version>
+		<pitest.plugin.version>1.6.3</pitest.plugin.version>
+		<fabric8.docker.plugin.version>0.27.2</fabric8.docker.plugin.version>
+
 		<sonar.organization>lores</sonar.organization>
 		<sonar.projectKey>BlacknDecker_sensor-reader</sonar.projectKey>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -179,6 +181,68 @@
 
 
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<!-- Must be run explicitly -->
+					<groupId>org.eluder.coveralls</groupId>
+					<artifactId>coveralls-maven-plugin</artifactId>
+					<version>${coveralls.plugin.version}</version>
+					<!-- workaround for the java 11 issue -->
+					<dependencies>
+						<dependency>
+							<groupId>javax.xml.bind</groupId>
+							<artifactId>jaxb-api</artifactId>
+							<version>2.3.1</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+				<plugin>
+					<groupId>org.sonarsource.scanner.maven</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>${sonar.plugin.version}</version>
+				</plugin>
+
+				<!-- Global Config -->
+				<plugin>
+				<groupId>io.fabric8</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>${fabric8.docker.plugin.version}</version>
+				<configuration>
+					<logStdout>true</logStdout>
+					<verbose>true</verbose>
+					<images>
+						<image>
+							<name>mongo:4.2.3</name>
+							<run>
+								<ports>
+									<port>27017:27017</port>
+								</ports>
+							</run>
+						</image>
+						<image>
+							<name>eclipse-mosquitto:2.0.7</name>
+							<run>
+								<ports>
+									<port>1883:1883</port>
+								</ports>
+								<volumes>
+									<bind>${basedir}/src/test/resources/mosquitto.conf:/mosquitto/config/mosquitto.conf</bind>
+								</volumes>
+								<wait>
+									<log>.*mosquitto version 2.0.7 running.*</log>
+									<time>20000</time>
+								</wait>
+							</run>
+						</image>
+					</images>
+				</configuration>
+			</plugin>
+
+			</plugins>
+		</pluginManagement>
+		
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -239,36 +303,6 @@
 			<plugin>
 				<groupId>io.fabric8</groupId>
 				<artifactId>docker-maven-plugin</artifactId>
-				<version>0.27.2</version>
-				<configuration>
-					<logStdout>true</logStdout>
-					<verbose>true</verbose>
-					<images>
-						<image>
-							<name>mongo:4.2.3</name>
-							<run>
-								<ports>
-									<port>27017:27017</port>
-								</ports>
-							</run>
-						</image>
-						<image>
-							<name>eclipse-mosquitto:2.0.7</name>
-							<run>
-								<ports>
-									<port>1883:1883</port>
-								</ports>
-								<volumes>
-									<bind>${basedir}/src/test/resources/mosquitto.conf:/mosquitto/config/mosquitto.conf</bind>
-								</volumes>
-								<wait>
-									<log>.*mosquitto version 2.0.7 running.*</log>
-									<time>20000</time>
-								</wait>
-							</run>
-						</image>
-					</images>
-				</configuration>
 				<executions>
 					<execution>
 						<id>docker:start</id>
@@ -288,33 +322,6 @@
 			</plugin>
 
 		</plugins>
-
-		<pluginManagement>
-			<plugins>
-				<!-- coveralls:report must be run explicitly -->
-				<plugin>
-					<groupId>org.eluder.coveralls</groupId>
-					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>${coveralls.plugin.version}</version>
-					<!-- workaround for the java 11 issue -->
-					<configuration>
-						<failOnServiceError>false</failOnServiceError>
-					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>javax.xml.bind</groupId>
-							<artifactId>jaxb-api</artifactId>
-							<version>2.3.1</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-				<plugin>
-					<groupId>org.sonarsource.scanner.maven</groupId>
-					<artifactId>sonar-maven-plugin</artifactId>
-					<version>${sonar.plugin.version}</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 
 	<profiles>
@@ -454,7 +461,6 @@
 					<plugin>
 						<groupId>io.fabric8</groupId>
 						<artifactId>docker-maven-plugin</artifactId>
-						<version>0.27.2</version>
 						<executions>
 							<execution>
 								<id>docker:start</id>
