@@ -24,7 +24,7 @@
 		<coveralls.plugin.version>4.3.0</coveralls.plugin.version>
 		<sonar.plugin.version>3.7.0.1746</sonar.plugin.version>
 		<pitest.plugin.version>1.6.3</pitest.plugin.version>
-		<fabric8.docker.plugin.version>0.27.2</fabric8.docker.plugin.version>
+		<fabric8.docker.plugin.version>0.35.0</fabric8.docker.plugin.version>
 
 		<sonar.organization>lores</sonar.organization>
 		<sonar.projectKey>BlacknDecker_sensor-reader</sonar.projectKey>
