@@ -68,6 +68,21 @@ public class TopicServiceRepositoryIT {
 	}
 	
 	@Test
+	void testServiceLayerAvoidsDuplicateTopicInsertion() {
+		String topicPath = "test/path/1";
+		Topic toInsert = createTestTopic(topicPath, "1.1");
+		Topic duplicate = createTestTopic(topicPath, "1.2");
+		// Insert new topic
+		Topic inserted = topicService.insertNewTopic(toInsert);
+		assertThat(topicRepository.findAll()).containsOnly(inserted);
+		// Insert duplicate
+		Topic insertedDuplicate = topicService.insertNewTopic(duplicate);
+		// Verify
+		assertThat(topicRepository.findAll()).containsExactly(inserted);
+		assertThat(insertedDuplicate).isSameAs(inserted);
+	}
+	
+	@Test
 	void testServiceCanRemoveTopicFromRepository() {
 		Topic toRemove = topicRepository.save(createTestTopic("test/path/1", "1.1"));
 		
