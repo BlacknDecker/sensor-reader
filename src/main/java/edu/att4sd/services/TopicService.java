@@ -33,7 +33,7 @@ public class TopicService {
 	public Topic insertNewTopic(Topic topic) {
 		topic.getTelemetry().clear();
 		return repository.findByPath(topic.getPath())
-				.orElse(repository.save(topic));
+				.orElseGet(() -> repository.save(topic));
 	}
 
 	public boolean removeTopic(Topic toRemove) {

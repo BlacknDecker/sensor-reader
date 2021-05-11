@@ -123,7 +123,7 @@ class TopicWebControllerIT {
 		// Verify
 		assertThat(topicRepository.findAll()).hasSize(1);
 		assertThat(topicRepository.findByPath(topicPath).get()).isEqualTo(saved);
-		assertThat(messageCounter.sendCount.get()).isEqualTo(1);
+		assertThat(messageCounter.sendCount.get()).isEqualTo(2); 
 	}
 	
 	

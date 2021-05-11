@@ -79,7 +79,7 @@ public class TopicServiceRepositoryIT {
 		Topic insertedDuplicate = topicService.insertNewTopic(duplicate);
 		// Verify
 		assertThat(topicRepository.findAll()).containsExactly(inserted);
-		assertThat(insertedDuplicate).isSameAs(inserted);
+		assertThat(insertedDuplicate).isEqualTo(inserted);
 	}
 	
 	@Test

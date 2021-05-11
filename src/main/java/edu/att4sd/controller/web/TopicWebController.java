@@ -2,7 +2,10 @@ package edu.att4sd.controller.web;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +33,7 @@ public class TopicWebController {
 	private static final String TOPICS_ATTRIBUTE = "topics";
 	private static final String TOPIC_ATTRIBUTE = "topic";
 	private static final String TOPIC_PATH_ATTRIBUTE = "topicPath";
+	private Logger logger = LoggerFactory.getLogger(TopicWebController.class);
 
 	@Autowired
 	private TopicService topicService;
@@ -61,10 +65,20 @@ public class TopicWebController {
 		if(topicDto.getPath().isEmpty()) {
 			throw new EmptyTopicPathException();
 		}
+		logger.info("--- DEBUG ---");
 		Topic newTopic = dtoToTopic(topicDto);
+		logTopics(1);
 		topicService.insertNewTopic(newTopic);
+		logTopics(2);
 		addTopicToMqttReceiver(newTopic);
 		return "redirect:/";
+	}
+	
+	private void logTopics(int step) {
+		logger.info(""+step+") " + topicService.getAllTopics()
+				.stream()
+				.map(t -> "ID: "+t.getId()+"-"+t.toString())
+				.collect(Collectors.joining(", ", "{", "}")));
 	}
 		
 	@GetMapping("/show/{id}")
