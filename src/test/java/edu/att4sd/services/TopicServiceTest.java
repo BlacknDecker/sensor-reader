@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -118,13 +119,14 @@ class TopicServiceTest {
 	}
 
 	@Test
-	void testInsertNewTopicWhenAlreadyExistsShouldReturnExistentTopic() {
-		Topic toSave = spy(createTestTopic(TOPIC_PATH));
+	void testInsertNewTopicWhenAlreadyExistsShouldReturnExistentTopicAndIgnoreDuplicate() {
+		Topic duplicate = createTestTopic(TOPIC_PATH);
 		Topic saved = createTestTopic(TOPIC_PATH, VALUE1, VALUE2);
 		when(repository.findByPath(TOPIC_PATH)).thenReturn(Optional.of(saved));
 
-		Topic inserted = topicService.insertNewTopic(toSave);
+		Topic inserted = topicService.insertNewTopic(duplicate);
 
+		verify(repository, times(0)).save(any(Topic.class));
 		assertThat(inserted).isSameAs(saved);
 		assertThat(inserted.getTelemetry()).hasSize(2);
 	}
