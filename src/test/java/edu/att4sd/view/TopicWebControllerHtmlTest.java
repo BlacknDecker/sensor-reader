@@ -53,7 +53,7 @@ class TopicWebControllerHtmlTest {
 	@Test
 	void testHomePageTitle() throws Exception {
 		HtmlPage page = webClient.getPage("/");
-		assertThat(page.getTitleText()).isEqualTo("Topics");
+		assertThat(page.getTitleText()).isEqualTo("Homepage");
 	}
 	
 	@Test
