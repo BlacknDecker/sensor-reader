@@ -122,7 +122,7 @@ class TopicWebControllerIT {
 		driver.findElement(By.name("submit_button")).click();
 		// Verify
 		assertThat(topicRepository.findAll()).hasSize(1);
-		assertThat(topicRepository.findByPath(topicPath).get()).isEqualTo(saved);
+		assertThat(topicRepository.findByPath(topicPath)).contains(saved);
 		assertThat(messageCounter.sendCount.intValue()).isEqualTo(2); 
 	}
 	
