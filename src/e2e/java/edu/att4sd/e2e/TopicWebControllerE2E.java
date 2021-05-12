@@ -131,4 +131,20 @@ public class TopicWebControllerE2E {
 			assertThat(driver.findElement(By.id("no_topics")).getText()).contains("No topics");
 		}
 	}
+	
+	@Test
+	void testDuplicateTopicShouldBeIgnored() {
+		String topicPath = "test/path/newtopic/5";
+		driver.get(baseUrl);
+		// Create new Topic
+		driver.findElement(By.cssSelector("a[href*='/new")).click();
+		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("submit_button")).click();
+		assertThat(driver.findElement(By.id("topics_table")).getText()).contains(topicPath);
+		// Create duplicate Topic
+		driver.findElement(By.cssSelector("a[href*='/new")).click();
+		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("submit_button")).click();
+		assertThat(driver.findElement(By.id("topics_table")).getText()).containsOnlyOnce(topicPath);
+	}
 }

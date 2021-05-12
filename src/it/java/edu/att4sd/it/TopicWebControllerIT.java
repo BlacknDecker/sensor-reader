@@ -104,6 +104,28 @@ class TopicWebControllerIT {
 		assertThat(messageCounter.sendCount.get()).isEqualTo(1);
 	}
 	
+	@Test
+	void testNewTopicPageIgnoresDuplicateTopic() throws Exception {
+		driver.get(baseUrl + "/new");
+		String topicPath = "test/path/1";
+		// Save topic
+		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("submit_button")).click();
+		// Check that the topic has been saved
+		assertThat(topicRepository.findByPath(topicPath)).isNotEmpty();
+		Topic saved = topicRepository.findByPath(topicPath).get();
+		assertThat(messageCounter.sendCount.get()).isEqualTo(1);
+		
+		// Insert duplicate
+		driver.get(baseUrl + "/new");
+		driver.findElement(By.name("path")).sendKeys(topicPath);
+		driver.findElement(By.name("submit_button")).click();
+		// Verify
+		assertThat(topicRepository.findAll()).hasSize(1);
+		assertThat(topicRepository.findByPath(topicPath)).contains(saved);
+		assertThat(messageCounter.sendCount.intValue()).isEqualTo(2); 
+	}
+	
 	
 	@Test
 	void testShowTopicPage() throws Exception {
