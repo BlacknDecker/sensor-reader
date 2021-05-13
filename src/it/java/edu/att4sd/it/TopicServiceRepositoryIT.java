@@ -24,7 +24,7 @@ import edu.att4sd.services.TopicService;
 @ExtendWith(SpringExtension.class)
 @DataMongoTest
 @Import(TopicService.class)
-public class TopicServiceRepositoryIT {
+class TopicServiceRepositoryIT {
 	
 	@Autowired
 	private TopicService topicService;

@@ -80,7 +80,6 @@ class TopicRepositoryTest {
 		topicCollection.insertOne(topicToDocument(saved));
 		List<Topic> found = repository.findAll();
 		assertThat(found).singleElement().isEqualTo(saved);
-		assertThat(found).toString().contains(tValue);
 	}
 	
 	@Test
